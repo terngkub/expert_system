@@ -21,7 +21,7 @@ template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 struct rule;
 
-using rule_node = std::variant<fact *, rule *>;
+using rule_node = std::variant<std::shared_ptr<fact>, std::shared_ptr<rule>>;
 
 struct rule
 {

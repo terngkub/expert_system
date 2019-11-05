@@ -23,7 +23,7 @@ fact::fact(fact_value value)
 	, visited{false}
 {}
 
-fact::fact(fact_value value, rule * r)
+fact::fact(fact_value value, std::shared_ptr<rule> r)
 	: value(value)
 	, rules{r}
 	, visited{false}

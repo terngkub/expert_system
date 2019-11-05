@@ -19,16 +19,16 @@ fact_value * rule::get_fact_value(rule_node node)
 {
 	return std::visit(overloaded
 		{
-			[](fact * f) { return &(f->value); },
-			[](rule * r) { r->evaluate(); return &(r->value); }
+			[](std::shared_ptr<fact> f) { return &(f->value); },
+			[](std::shared_ptr<rule> r) { r->evaluate(); return &(r->value); }
 		},
 		node);
 }
 
 void rule::evaluate()
 {
-	auto * l_value = get_fact_value(left);
-	auto * r_value = get_fact_value(right);
+	auto l_value = get_fact_value(left);
+	auto r_value = get_fact_value(right);
 	switch(operation)
 	{
 		case rule_operation::AND: operation_and(l_value, r_value); break;

@@ -16,11 +16,11 @@ struct rule;
 struct fact
 {
     fact_value value;
-    std::vector<rule *> rules;
+    std::vector<std::shared_ptr<rule>> rules;
 
     fact();
     fact(fact_value value);
-    fact(fact_value value, rule * r);
+    fact(fact_value value, std::shared_ptr<rule> r);
 
     bool visited;
 };

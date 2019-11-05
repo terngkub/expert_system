@@ -3,14 +3,15 @@
 #include "rule.hpp"
 #include <map>
 #include <vector>
+#include <memory>
 
 struct expert_system
 {
-    std::map<char, fact> facts;
-    std::vector<rule> rules;
+    std::map<char, std::shared_ptr<fact>> facts;
+    std::vector<std::shared_ptr<rule>> rules;
 
     expert_system();
 
     void operator()();
-    fact_value query(fact * f);
+    fact_value query(std::shared_ptr<fact> f);
 };
