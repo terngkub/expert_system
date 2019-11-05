@@ -19,8 +19,26 @@ fact_value * rule::get_fact_value(rule_node node)
 {
 	return std::visit(overloaded
 		{
-			[](std::shared_ptr<fact> f) { return &(f->value); },
-			[](std::shared_ptr<rule> r) { r->evaluate(); return &(r->value); }
+			[](std::shared_ptr<fact> f)
+			{ 
+				if (f->visited)
+					return &(f->value);
+				f->visited = true;
+
+				for (auto r : f->rules)
+				{
+					r->evaluate();
+				}
+				return &(f->value);
+			},
+			[](std::shared_ptr<rule> r) {
+				if (r->visited)
+					return &(r->value);
+				r->visited = true;
+					
+				r->evaluate(); 
+				return &(r->value);
+			}
 		},
 		node);
 }
@@ -40,9 +58,6 @@ void rule::evaluate()
 void rule::operation_and(fact_value * l_value, fact_value * r_value)
 {
 	std::cout << "and: " << *l_value << " " << *r_value << ' ' << visited << '\n';
-	if (visited)
-		return;
-	visited = true;
 	if (*l_value == fact_value::TRUE && *r_value == fact_value::TRUE)
 		value = fact_value::TRUE;
 	else
@@ -52,9 +67,6 @@ void rule::operation_and(fact_value * l_value, fact_value * r_value)
 void rule::operation_or(fact_value * l_value, fact_value * r_value)
 {
 	std::cout << "or: " << *l_value << " " << *r_value << ' ' << visited << '\n';
-	if (visited)
-		return;
-	visited = true;
 	if (*l_value == fact_value::TRUE || *r_value == fact_value::TRUE)
 		value = fact_value::TRUE;
 	else
@@ -65,9 +77,6 @@ void rule::operation_or(fact_value * l_value, fact_value * r_value)
 void rule::operation_imply(fact_value * l_value, fact_value * r_value)
 {
 	std::cout << "imply: " << *l_value << " " << *r_value << ' ' << visited << '\n';
-	if (visited)
-		return;
-	visited = true;
 	if (*l_value == fact_value::TRUE)
 		*r_value = fact_value::TRUE;
 }

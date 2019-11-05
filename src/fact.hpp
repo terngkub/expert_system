@@ -17,10 +17,9 @@ struct fact
 {
     fact_value value;
     std::vector<std::shared_ptr<rule>> rules;
+    bool visited;
 
     fact();
     fact(fact_value value);
     fact(fact_value value, std::shared_ptr<rule> r);
-
-    bool visited;
 };

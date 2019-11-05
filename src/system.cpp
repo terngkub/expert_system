@@ -7,15 +7,15 @@ expert_system::expert_system()
 	facts['A'] = std::make_shared<fact>(fact_value::FALSE);
 	facts['B'] = std::make_shared<fact>(fact_value::FALSE);
 	facts['C'] = std::make_shared<fact>(fact_value::FALSE);
-	facts['D'] = std::make_shared<fact>(fact_value::TRUE);
+	facts['D'] = std::make_shared<fact>(fact_value::FALSE);
 	facts['E'] = std::make_shared<fact>(fact_value::FALSE);
 
-	rules.push_back(std::make_shared<rule>(rule_operation::AND, facts['A'], facts['B']));
-	facts['A']->rules.push_back(rules[0]);
+	rules.push_back(std::make_shared<rule>(rule_operation::AND, facts['B'], facts['C']));
 	facts['B']->rules.push_back(rules[0]);
+	facts['C']->rules.push_back(rules[0]);
 
-	rules.push_back(std::make_shared<rule>(rule_operation::IMPLY, rules[0], facts['C']));
-	facts['C']->rules.push_back(rules[1]);
+	rules.push_back(std::make_shared<rule>(rule_operation::IMPLY, rules[0], facts['A']));
+	facts['A']->rules.push_back(rules[1]);
 
 	rules.push_back(std::make_shared<rule>(rule_operation::OR, facts['D'], facts['E']));
 	facts['D']->rules.push_back(rules[2]);
