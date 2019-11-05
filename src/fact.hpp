@@ -20,4 +20,7 @@ struct fact
 
     fact();
     fact(fact_value value);
+    fact(fact_value value, rule * r);
+
+    bool visited;
 };

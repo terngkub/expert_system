@@ -15,20 +15,59 @@ std::ostream & operator<<(std::ostream & os, rule_operation const & rhs)
 	return os;
 }
 
-fact_value rule::get_fact_value(rule_node node)
+fact_value * rule::get_fact_value(rule_node node)
 {
 	return std::visit(overloaded
 		{
-			[](fact * f) { return f->value; },
-			[](rule * r) { return r->evaluate(); }
+			[](fact * f) { return &(f->value); },
+			[](rule * r) { r->evaluate(); return &(r->value); }
 		},
 		node);
 }
 
-fact_value rule::evaluate()
+void rule::evaluate()
 {
-	auto l_value = get_fact_value(left);
-	auto r_value = get_fact_value(right);
-	return (l_value == fact_value::TRUE && r_value == fact_value::TRUE) ? fact_value::TRUE : fact_value::FALSE;
+	auto * l_value = get_fact_value(left);
+	auto * r_value = get_fact_value(right);
+	switch(operation)
+	{
+		case rule_operation::AND: operation_and(l_value, r_value); break;
+		case rule_operation::OR: operation_or(l_value, r_value); break;
+		default: operation_imply(l_value, r_value);
+	}
 }
 
+void rule::operation_and(fact_value * l_value, fact_value * r_value)
+{
+	std::cout << "and: " << *l_value << " " << *r_value << ' ' << visited << '\n';
+	if (visited)
+		return;
+	visited = true;
+	if (*l_value == fact_value::TRUE && *r_value == fact_value::TRUE)
+		value = fact_value::TRUE;
+	else
+		value = fact_value::FALSE;
+}
+
+void rule::operation_or(fact_value * l_value, fact_value * r_value)
+{
+	std::cout << "or: " << *l_value << " " << *r_value << ' ' << visited << '\n';
+	if (visited)
+		return;
+	visited = true;
+	if (*l_value == fact_value::TRUE || *r_value == fact_value::TRUE)
+		value = fact_value::TRUE;
+	else
+		value = fact_value::FALSE;
+
+}
+
+void rule::operation_imply(fact_value * l_value, fact_value * r_value)
+{
+	std::cout << "imply: " << *l_value << " " << *r_value << ' ' << visited << '\n';
+	if (visited)
+		return;
+	visited = true;
+	if (*l_value == fact_value::TRUE)
+		*r_value = fact_value::TRUE;
+}

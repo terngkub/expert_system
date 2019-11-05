@@ -14,9 +14,17 @@ std::ostream & operator<<(std::ostream & os, fact_value const & rhs)
 fact::fact()
 	: value(fact_value::FALSE)
 	, rules{}
+	, visited{false}
 {}
 
 fact::fact(fact_value value)
 	: value(value)
 	, rules{}
+	, visited{false}
+{}
+
+fact::fact(fact_value value, rule * r)
+	: value(value)
+	, rules{r}
+	, visited{false}
 {}

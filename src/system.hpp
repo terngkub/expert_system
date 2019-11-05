@@ -12,4 +12,5 @@ struct expert_system
     expert_system();
 
     void operator()();
+    fact_value query(fact * f);
 };

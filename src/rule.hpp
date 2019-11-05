@@ -28,14 +28,22 @@ struct rule
     rule_operation operation;
     rule_node left;
     rule_node right;
+    fact_value value;
+    bool visited;
 
     template<class L, class R>
     rule(rule_operation operation, L left, R right)
         : operation{operation}
         , left(left)
         , right(right)
+        , value{fact_value::FALSE}
+        , visited{false}
     {}
 
-    fact_value get_fact_value(rule_node node);
-    fact_value evaluate();
+    fact_value * get_fact_value(rule_node node);
+
+    void evaluate();
+    void operation_and(fact_value * l_value, fact_value * r_value);
+    void operation_or(fact_value * l_value, fact_value * r_value);
+    void operation_imply(fact_value * l_value, fact_value * r_value);
 };
