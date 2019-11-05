@@ -1,3 +1,9 @@
 add_executable(expert_system
-    main.cpp
+	fact.cpp
+	fact.hpp
+	main.cpp
+	rule.cpp
+	rule.hpp
+	system.cpp
+	system.hpp
 )
