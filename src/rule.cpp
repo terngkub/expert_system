@@ -51,6 +51,7 @@ void rule::evaluate()
 	{
 		case rule_operation::AND: operation_and(l_value, r_value); break;
 		case rule_operation::OR: operation_or(l_value, r_value); break;
+		case rule_operation::XOR: operation_xor(l_value, r_value); break;
 		default: operation_imply(l_value, r_value);
 	}
 }
@@ -79,4 +80,14 @@ void rule::operation_imply(fact_value * l_value, fact_value * r_value)
 	std::cout << "imply: " << *l_value << " " << *r_value << ' ' << visited << '\n';
 	if (*l_value == fact_value::TRUE)
 		*r_value = fact_value::TRUE;
+}
+
+void rule::operation_xor(fact_value * l_value, fact_value * r_value)
+{
+	std::cout << "xor: " << *l_value << " " << *r_value << ' ' << visited << '\n';
+	if ( ( *l_value == fact_value::TRUE && *r_value == fact_value::FALSE ) 
+	||  ( *l_value == fact_value::FALSE && *r_value == fact_value::TRUE)  )
+		value = fact_value::TRUE;
+	else
+		value = fact_value::FALSE;
 }
