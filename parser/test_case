@@ -1,0 +1,14 @@
+right hand side
+A
+A + B
+A + B + C
+(A)
+(A + B)
+(A + B + C)
+(A + B) + C
+A + (B + C)
+(A) + B + (C)
+((A + B))
+((A + B) + C)
+(A + (B + C))
+(((A + B)))
