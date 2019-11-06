@@ -47,11 +47,15 @@ void rule::evaluate()
 {
 	auto l_value = get_fact_value(left);
 	auto r_value = get_fact_value(right);
+	
+	if (*r_value == fact_value::NONE && operation != NOT)
+		std::cout << "/!\\ THERE IS A ISSUE /!\\ \n";
 	switch(operation)
 	{
 		case rule_operation::AND: operation_and(l_value, r_value); break;
 		case rule_operation::OR: operation_or(l_value, r_value); break;
 		case rule_operation::XOR: operation_xor(l_value, r_value); break;
+		case rule_operation::NOT: operation_not(l_value, r_value); break; 
 		default: operation_imply(l_value, r_value);
 	}
 }
@@ -90,4 +94,15 @@ void rule::operation_xor(fact_value * l_value, fact_value * r_value)
 		value = fact_value::TRUE;
 	else
 		value = fact_value::FALSE;
+}
+
+void rule::operation_not(fact_value * l_value, fact_value * r_value)
+{
+	std::cout << "not: " << *l_value << " " << *r_value << ' ' << visited << '\n';
+	if (*l_value == fact_value::TRUE)
+		value = fact_value::FALSE;
+	else
+		value = fact_value::TRUE;
+	
+	return;
 }
