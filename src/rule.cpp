@@ -56,7 +56,7 @@ void rule::evaluate()
 		case rule_operation::OR: operation_or(l_value, r_value); break;
 		case rule_operation::XOR: operation_xor(l_value, r_value); break;
 		case rule_operation::NOT: operation_not(l_value, r_value); break; 
-		default: operation_imply(l_value, r_value);
+		default: operation_imply(l_value, r_value, right);
 	}
 }
 
@@ -79,11 +79,32 @@ void rule::operation_or(fact_value * l_value, fact_value * r_value)
 
 }
 
-void rule::operation_imply(fact_value * l_value, fact_value * r_value)
+void rule::operation_imply(fact_value * l_value, fact_value * r_value, rule_node right)
 {
 	std::cout << "imply: " << *l_value << " " << *r_value << ' ' << visited << '\n';
-	if (*l_value == fact_value::TRUE)
+	if (*l_value == fact_value::TRUE && *r_value == fact_value::FALSE)
+	{
 		*r_value = fact_value::TRUE;
+
+		//re-evaluate right if it is a facts
+		if ( std::holds_alternative<std::shared_ptr<fact>>(right) )
+		{
+			auto name = std::get<std::shared_ptr<fact>>(right);
+			for (auto r : name->rules)
+			{
+				r->evaluate();
+			}
+		}
+	}
+	if ( std::holds_alternative<std::shared_ptr<rule>>(right) )
+	{
+		auto name = std::get<std::shared_ptr<rule>>(right);
+		if (name->operation == rule_operation::AND && *l_value == fact_value::TRUE && *r_value == fact_value::TRUE)
+		{
+			// CHANGE RIGHT FACTS TO TRUE
+			// REPEAT IF RIGHT->RIGHT IS RULE AND && RIGHT->LEFT IS TRUE
+		}
+	}
 }
 
 void rule::operation_xor(fact_value * l_value, fact_value * r_value)
@@ -103,6 +124,4 @@ void rule::operation_not(fact_value * l_value, fact_value * r_value)
 		value = fact_value::FALSE;
 	else
 		value = fact_value::TRUE;
-	
-	return;
 }
