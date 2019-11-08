@@ -96,29 +96,38 @@ void rule::operation_imply(fact_value * l_value, fact_value * r_value, rule_node
 			}
 		}
 	}
+
+	// if right is a rule && is AND operator && left is true, 
+	//right->right and right->left must be set to true &&
+	//re-evaluate changed facts
 	if ( std::holds_alternative<std::shared_ptr<rule>>(right) )
 	{
 		auto name = std::get<std::shared_ptr<rule>>(right);
 		fact_value * tmpl_value = l_value;
 		fact_value * tmpr_value = r_value;
 		rule_node	tmp_right 	 = right;
+	std::cout << " LEFT: "<< *tmpl_value << " RIGHT: " << *tmpr_value << '\n';
+		while (name->operation == rule_operation::AND && *tmpl_value == fact_value::TRUE && *tmpr_value == fact_value::TRUE )
+		{
+			std::cout << "\nhello !!!!\n";
+			// CHANGE RIGHT FACTS TO TRUE
+			// REPEAT IF RIGHT->RIGHT IS RULE AND && RIGHT->LEFT IS TRUE
+			
+			tmpl_value = name->get_fact_value(name->left);
+			tmpr_value = name->get_fact_value(name->right);
+			std::cout << " LEFT: "<< *tmpl_value << " RIGHT: " << *tmpr_value << '\n';
+			*tmpl_value = fact_value::TRUE;
+			*tmpr_value = fact_value::TRUE;
 
-		//get_fact_value
-		// while (name->operation == rule_operation::AND && *tmpl_value == fact_value::TRUE && *tmpr_value == fact_value::TRUE)
-		// {
-		// 	std::cout << "hello !!!!\n";
-		// 	// CHANGE RIGHT FACTS TO TRUE
-		// 	// REPEAT IF RIGHT->RIGHT IS RULE AND && RIGHT->LEFT IS TRUE
-		// 	tmpl_value = name->get_fact_value(left);
-		// 	tmpr_value = name->get_fact_value(right);
-		// 	*tmpl_value = fact_value::TRUE;
-		// 	*tmpr_value = fact_value::TRUE;
-		// 	tmp_right = name->right;
-		// 	if ( std::holds_alternative<std::shared_ptr<rule>>(tmp_right) )
-		// 		name = std::get<std::shared_ptr<rule>>(right);
-		// 	else
-		// 		name = nullptr;
-		// }
+			tmp_right = name->right; 
+			if ( std::holds_alternative<std::shared_ptr<rule>>(tmp_right) )
+			{
+				name = std::get<std::shared_ptr<rule>>(tmp_right);
+				std::cout << name->operation;
+			}
+			else
+				break;
+		}
 	 }
 }
 
@@ -129,7 +138,7 @@ void rule::operation_xor(fact_value * l_value, fact_value * r_value)
 	||  ( *l_value == fact_value::FALSE && *r_value == fact_value::TRUE)  )
 		value = fact_value::TRUE;
 	else
-		value = fact_value::FALSE;
+		value = fact_value::FALSE;	
 }
 
 void rule::operation_not(fact_value * l_value, fact_value * r_value)
@@ -140,3 +149,9 @@ void rule::operation_not(fact_value * l_value, fact_value * r_value)
 	else
 		value = fact_value::TRUE;
 }
+
+/*
+L + M => K
+O + P => L + N
+N => M
+*/

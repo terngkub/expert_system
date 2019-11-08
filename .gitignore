@@ -1,5 +1,5 @@
 build
-expert_system
+bin
 .DS_Store
 *.swp
 .vscode

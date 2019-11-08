@@ -2,7 +2,6 @@
 #include "fact.hpp"
 #include <iostream>
 #include <variant>
-#include "system.hpp"
 
 enum rule_operation
 {
@@ -29,6 +28,7 @@ struct rule
     rule_operation operation;
     rule_node left;
     rule_node right;
+    std::shared_ptr<rule> parent;
     fact_value value;
     bool visited;
 
