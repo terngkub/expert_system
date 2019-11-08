@@ -1,5 +1,6 @@
 #pragma once
 #include "ast.hpp"
+#include <iostream>
 
 struct printer
 {

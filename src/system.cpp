@@ -1,39 +1,17 @@
 #include "system.hpp"
+#include <string>
+#include <iostream>
 
-expert_system::expert_system()
+expert_system::expert_system(std::string & filename)
 	: facts{}
 	, rules{}
-{
-	facts['A'] = std::make_shared<fact>(fact_value::FALSE);
-	facts['B'] = std::make_shared<fact>(fact_value::FALSE);
-	facts['C'] = std::make_shared<fact>(fact_value::FALSE);
-	facts['D'] = std::make_shared<fact>(fact_value::TRUE);
-	facts['E'] = std::make_shared<fact>(fact_value::TRUE);
-
-	rules.push_back(std::make_shared<rule>(rule_operation::AND, facts['B'], facts['C']));
-	facts['B']->rules.push_back(rules[0]);
-	facts['C']->rules.push_back(rules[0]);
-
-	rules.push_back(std::make_shared<rule>(rule_operation::IMPLY, rules[0], facts['A']));
-	facts['A']->rules.push_back(rules[1]);
-
-	rules.push_back(std::make_shared<rule>(rule_operation::XOR, facts['D'], facts['E']));
-	facts['D']->rules.push_back(rules[2]);
-	facts['E']->rules.push_back(rules[2]);
-
-	rules.push_back(std::make_shared<rule>(rule_operation::IMPLY, rules[2], facts['B']));
-	facts['B']->rules.push_back(rules[3]);
-
-	rules.push_back(std::make_shared<rule>(rule_operation::IMPLY, facts['B'], facts['C']));
-	facts['B']->rules.push_back(rules[4]);
-	facts['C']->rules.push_back(rules[4]);
-
-
-}
+	, parser_{*this, filename}
+{}
 
 void expert_system::operator()()
 {
-	query(facts['A']);
+	parser_.parse();
+	query(facts['G']);
 	for (auto const & f : facts)
 	{
 		std::cout << f.first << ": " << f.second->value << '\n';
