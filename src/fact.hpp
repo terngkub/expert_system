@@ -4,6 +4,7 @@
 
 enum class fact_value
 {
+    NONE,
     TRUE,
     FALSE,
     UNDETERMINED

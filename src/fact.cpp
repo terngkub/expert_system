@@ -6,6 +6,7 @@ std::ostream & operator<<(std::ostream & os, fact_value const & rhs)
 	{
 	case fact_value::TRUE:	os << "TRUE"; break;
 	case fact_value::FALSE:	os << "FALSE"; break;
+	case fact_value::NONE:	os << "NONE"; break;
 	default:				os << "UNDETERMINED"; break;
 	}
 	return os;

@@ -45,7 +45,8 @@ struct rule
     void evaluate();
     void operation_and(fact_value * l_value, fact_value * r_value);
     void operation_or(fact_value * l_value, fact_value * r_value);
-    void operation_imply(fact_value * l_value, fact_value * r_value);
+    void operation_imply(fact_value * l_value, fact_value * r_value, rule_node right);
     void operation_xor(fact_value * l_value, fact_value * r_value);
-
+    void operation_not(fact_value * initial_value, fact_value * r_value);
+    void operation_if(fact_value * initial_value, fact_value * r_value);
 };

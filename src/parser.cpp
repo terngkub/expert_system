@@ -67,6 +67,7 @@ rule_node parser::operator()(ast::signed_ & signed_)
 
     auto right = std::make_shared<fact>();
     auto new_rule = std::make_shared<rule>(rule_operation::NOT, left, right);
+    es.rules.push_back(new_rule);
 
     if (std::holds_alternative<std::shared_ptr<fact>>(left))
     {
@@ -80,6 +81,9 @@ rule_node parser::operator()(ast::signed_ & signed_)
 rule_node parser::operator()(ast::left_expr & left_expr)
 {
     auto left = (*this)(left_expr.first);
+    if (left_expr.rest.size() == 0)
+        return left;
+
     std::shared_ptr<rule> new_rule;
 
     for (auto & opt : left_expr.rest)
@@ -93,6 +97,7 @@ rule_node parser::operator()(ast::left_expr & left_expr)
             default: operation_value = rule_operation::XOR;
         }
         new_rule = std::make_shared<rule>(operation_value, left, right);
+        es.rules.push_back(new_rule);
 
         if (std::holds_alternative<std::shared_ptr<fact>>(left))
         {
@@ -112,6 +117,9 @@ rule_node parser::operator()(ast::left_expr & left_expr)
 rule_node parser::operator()(ast::right_expr & right_expr)
 {
     auto left = (*this)(right_expr.first);
+    if (right_expr.rest.size() == 0)
+        return left;
+
     std::shared_ptr<rule> new_rule;
 
     for (auto & opt : right_expr.rest)
@@ -125,6 +133,7 @@ rule_node parser::operator()(ast::right_expr & right_expr)
             default: operation_value = rule_operation::XOR;
         }
         new_rule = std::make_shared<rule>(operation_value, left, right);
+        es.rules.push_back(new_rule);
 
         if (std::holds_alternative<std::shared_ptr<fact>>(left))
         {
