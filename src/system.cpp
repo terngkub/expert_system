@@ -31,14 +31,17 @@ expert_system::expert_system()
 	facts['A'] = std::make_shared<fact>(fact_value::TRUE);
 	facts['B'] = std::make_shared<fact>(fact_value::FALSE);
 	facts['C'] = std::make_shared<fact>(fact_value::FALSE);
+	facts['D'] = std::make_shared<fact>(fact_value::FALSE);
 
-	rules.push_back( std::make_shared<rule>( rule_operation::IMPLY, facts['B'] ,facts['C'] ) );
-	facts['B']->rules.push_back(rules[0]);
+	rules.push_back( std::make_shared<rule>( rule_operation::AND, facts['C'] ,facts['D'] ) );
 	facts['C']->rules.push_back(rules[0]);
+	facts['D']->rules.push_back(rules[0]);
 
-	rules.push_back( std::make_shared<rule>( rule_operation::IMPLY, facts['A'], facts['B'] ) );
+	rules.push_back( std::make_shared<rule>( rule_operation::AND, facts['B'] ,rules[0] ) );
 	facts['B']->rules.push_back(rules[1]);
-	facts['A']->rules.push_back(rules[1]);
+
+	rules.push_back( std::make_shared<rule>( rule_operation::IMPLY, facts['A'] , rules[1] ) );
+	facts['A']->rules.push_back(rules[2]);
 }
 
 void expert_system::operator()()
