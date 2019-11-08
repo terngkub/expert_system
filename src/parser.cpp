@@ -22,37 +22,85 @@ void parser::parse()
 	using boost::spirit::x3::ascii::space;
 
 	std::string line;
-    int rule_nb = 0;
 	int line_nb = 0;
+    int rule_nb = 0;
+    bool has_initial_facts = false;
+    bool has_queries = false;
+
+    enum grammar_type
+    {
+        RULE,
+        INITIAL_FACTS,
+        QUERIES
+    };
+
+    auto g = grammar_type::RULE;
 
 	while (getline(ifs, line))
 	{
 		++line_nb;
-        if (is_empty(line) || is_comment(line))
-        {
-            std::cout << "line " << line_nb << ": skipped\n";
-            continue;
-        }
 
-		auto iter = line.cbegin();
-		auto const end = line.cend();
-		ast::rule result;
-		
-		bool r = phrase_parse(iter, end, grammar::input, space, result);
-		if (r && iter == end)
-		{
-			std::cout << "line " << line_nb << " parsed successfully\n";
-			(*this)(result);
-            ++rule_nb;
-		}
-		else
-		{
-			std::string rest(iter, end);
-			throw std::runtime_error("parsing fail at: " + rest);
-		}
+        if (is_empty(line) || is_comment(line))
+            continue;
+
+        if (g == grammar_type::RULE)
+        {
+            ast::rule result;
+            auto iter = line.cbegin();
+            auto end = line.cend();
+            bool r = phrase_parse(iter, end, grammar::input, space, result);
+            if (r && iter == end)
+            {
+                (*this)(result);
+                ++rule_nb;
+                continue;
+            }
+            else
+                g = grammar_type::INITIAL_FACTS;
+        }
+        if (g == grammar_type::INITIAL_FACTS)
+        {
+            std::vector<char> result;
+            bool r = phrase_parse(line.cbegin(), line.cend(), grammar::initial_facts, space, result);
+            set_initial_facts(result);
+            if (r)
+                has_initial_facts = true;
+            g = grammar_type::QUERIES;
+        }
+        else if (g == grammar_type::QUERIES)
+        {
+            std::vector<char> result;
+            bool r = phrase_parse(line.cbegin(), line.cend(), grammar::queries, space, result);
+            if (r)
+                has_queries = true;
+            set_queries(result);
+        }
 	}
     if (rule_nb == 0)
-        throw std::runtime_error("there is no rule in the input");
+        throw std::runtime_error("there is no rules in the input");
+    if (!has_initial_facts)
+        throw std::runtime_error("there is no initial facts in the input");
+    if (!has_queries)
+        throw std::runtime_error("there is no queries in the input");
+    
+}
+
+void parser::set_initial_facts(std::vector<char> & result)
+{
+    // TODO handle duplication case
+    for (auto const c : result)
+    {
+        es.facts[c]->value = fact_value::TRUE;
+    }
+}
+
+void parser::set_queries(std::vector<char> & result)
+{
+    // TODO handle duplication case
+    for (auto const c : result)
+    {
+        es.queries.push_back(c);
+    }
 }
 
 bool parser::is_empty(std::string const & str)

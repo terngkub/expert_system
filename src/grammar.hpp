@@ -1,8 +1,11 @@
 #pragma once
 #include "ast.hpp"
+#include <vector>
 
 namespace grammar
 {
+
+// rule
 
 namespace x3 = boost::spirit::x3;
 
@@ -38,5 +41,19 @@ BOOST_SPIRIT_DEFINE(lv2);
 BOOST_SPIRIT_DEFINE(lv3);
 BOOST_SPIRIT_DEFINE(left_expr);
 BOOST_SPIRIT_DEFINE(input);
+
+
+// initial_facts
+
+x3::rule<class initial_facts, std::vector<char>> const initial_facts("initial_facts");
+auto const initial_facts_def = '=' >> *(upper) >> -('#' >> *omit[char_]);
+BOOST_SPIRIT_DEFINE(initial_facts);
+
+
+// queries
+
+x3::rule<class queries, std::vector<char>> const queries("queries");
+auto const queries_def = '?' >> +(upper) >> -('#' >> *omit[char_]);
+BOOST_SPIRIT_DEFINE(queries);
 
 }

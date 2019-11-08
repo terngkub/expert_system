@@ -5,13 +5,17 @@
 expert_system::expert_system(std::string & filename)
 	: facts{}
 	, rules{}
+	, queries{}
 	, parser_{*this, filename}
 {}
 
 void expert_system::operator()()
 {
 	parser_.parse();
-	query(facts['A']);
+	for (auto const c : queries)
+	{
+		query(facts[c]);
+	}
 	for (auto const & f : facts)
 	{
 		std::cout << f.first << ": " << f.second->value << '\n';

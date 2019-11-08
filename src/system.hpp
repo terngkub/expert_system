@@ -11,6 +11,7 @@ struct expert_system
 {
     std::map<char, std::shared_ptr<fact>> facts;
     std::vector<std::shared_ptr<rule>> rules;
+    std::vector<char> queries;
     parser parser_;
 
     expert_system(std::string & filename);
