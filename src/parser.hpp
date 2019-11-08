@@ -14,6 +14,8 @@ struct parser
     ~parser();
 
     void parse();
+    bool is_empty(std::string const & str);
+    bool is_comment(std::string const & str);
 
     rule_node operator()(char);
     rule_node operator()(ast::operand &);

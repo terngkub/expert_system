@@ -11,7 +11,7 @@ expert_system::expert_system(std::string & filename)
 void expert_system::operator()()
 {
 	parser_.parse();
-	query(facts['C']);
+	query(facts['A']);
 	for (auto const & f : facts)
 	{
 		std::cout << f.first << ": " << f.second->value << '\n';

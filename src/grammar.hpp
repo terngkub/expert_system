@@ -19,6 +19,7 @@ x3::rule<class input, ast::rule> const input("input");
 using x3::upper;
 using x3::char_;
 using x3::string;
+using x3::omit;
 
 auto const right_term_def = upper | '(' >> right_expr >> ')';
 auto const right_expr_def = right_term >> *(char_("+") >> right_term);
@@ -28,7 +29,7 @@ auto const lv2_def = lv1 >> *(char_("+") >> lv1);
 auto const lv3_def = lv2 >> *(char_("|") >> lv2);
 auto const left_expr_def = lv3 >> *(char_("^") >> lv3);
 
-auto const input_def = left_expr >> string("=>") >> right_expr;
+auto const input_def = left_expr >> string("=>") >> right_expr >> -('#' >> *omit[char_]);
 
 BOOST_SPIRIT_DEFINE(right_term);
 BOOST_SPIRIT_DEFINE(right_expr);

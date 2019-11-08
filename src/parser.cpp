@@ -1,6 +1,7 @@
 #include "grammar.hpp"
 #include "parser.hpp"
 #include "system.hpp"
+#include <regex>
 
 parser::parser(expert_system & es, std::string & filename)
     : es{es}
@@ -21,10 +22,18 @@ void parser::parse()
 	using boost::spirit::x3::ascii::space;
 
 	std::string line;
-	int line_nb = 1;
+    int rule_nb = 0;
+	int line_nb = 0;
 
 	while (getline(ifs, line))
 	{
+		++line_nb;
+        if (is_empty(line) || is_comment(line))
+        {
+            std::cout << "line " << line_nb << ": skipped\n";
+            continue;
+        }
+
 		auto iter = line.cbegin();
 		auto const end = line.cend();
 		ast::rule result;
@@ -34,14 +43,32 @@ void parser::parse()
 		{
 			std::cout << "line " << line_nb << " parsed successfully\n";
 			(*this)(result);
+            ++rule_nb;
 		}
 		else
 		{
 			std::string rest(iter, end);
 			throw std::runtime_error("parsing fail at: " + rest);
 		}
-		++line_nb;
 	}
+    if (rule_nb == 0)
+        throw std::runtime_error("there is no rule in the input");
+}
+
+bool parser::is_empty(std::string const & str)
+{
+    if (str.empty())
+        return true;
+    std::smatch matches;
+    std::regex pattern{"^\\s.*$"};
+    return std::regex_search(str, matches, pattern);
+}
+
+bool parser::is_comment(std::string const & str)
+{
+    std::smatch matches;
+    std::regex pattern{"^\\s*#.*$"};
+    return std::regex_search(str, matches, pattern);
 }
 
 rule_node parser::operator()(char c)
