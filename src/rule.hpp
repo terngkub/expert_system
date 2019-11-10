@@ -28,6 +28,7 @@ struct rule
     rule_operation operation;
     rule_node left;
     rule_node right;
+    std::shared_ptr<rule> parent;
     fact_value value;
     bool visited;
 
@@ -36,6 +37,7 @@ struct rule
         : operation{operation}
         , left(left)
         , right(right)
+        , parent{}
         , value{fact_value::FALSE}
         , visited{false}
     {}

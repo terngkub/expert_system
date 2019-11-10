@@ -144,6 +144,11 @@ rule_node parser::operator()(ast::signed_ & signed_)
     auto new_rule = std::make_shared<rule>(rule_operation::NOT, left, right);
     es.rules.push_back(new_rule);
 
+    if (std::holds_alternative<std::shared_ptr<rule>>(left))
+    {
+        auto l = std::get<std::shared_ptr<rule>>(left);
+        l->parent = new_rule;
+    }
     if (std::holds_alternative<std::shared_ptr<fact>>(left))
     {
         auto l = std::get<std::shared_ptr<fact>>(left);
@@ -163,7 +168,10 @@ rule_node parser::operator()(ast::left_expr & left_expr)
 
     for (auto & opt : left_expr.rest)
     {
+        // get right operand
         auto right = (*this)(opt.operand_);
+
+        // set operation type
         rule_operation operation_value;
         switch (opt.operator_)
         {
@@ -171,20 +179,36 @@ rule_node parser::operator()(ast::left_expr & left_expr)
             case '|': operation_value = rule_operation::OR; break;
             default: operation_value = rule_operation::XOR;
         }
+
+        // create new rule
         new_rule = std::make_shared<rule>(operation_value, left, right);
         es.rules.push_back(new_rule);
+        
+        // add parent to rule
+        if (std::holds_alternative<std::shared_ptr<rule>>(left))
+        {
+            auto l = std::get<std::shared_ptr<rule>>(left);
+            l->parent = new_rule;
+        }
+        if (std::holds_alternative<std::shared_ptr<rule>>(left))
+        {
+            auto l = std::get<std::shared_ptr<rule>>(left);
+            l->parent = new_rule;
+        }
 
+        // add rule to fact
         if (std::holds_alternative<std::shared_ptr<fact>>(left))
         {
             auto l = std::get<std::shared_ptr<fact>>(left);
             l->rules.push_back(new_rule);
         }
-
         if (std::holds_alternative<std::shared_ptr<fact>>(right))
         {
             auto r = std::get<std::shared_ptr<fact>>(right);
             r->rules.push_back(new_rule);
         }
+
+        left = new_rule;
     }
     return new_rule;
 }
@@ -199,7 +223,10 @@ rule_node parser::operator()(ast::right_expr & right_expr)
 
     for (auto & opt : right_expr.rest)
     {
+        // get right operand
         auto right = (*this)(opt.operand_);
+
+        // set operation type
         rule_operation operation_value;
         switch (opt.operator_)
         {
@@ -207,42 +234,73 @@ rule_node parser::operator()(ast::right_expr & right_expr)
             case '|': operation_value = rule_operation::OR; break;
             default: operation_value = rule_operation::XOR;
         }
+
+        // create new rule
         new_rule = std::make_shared<rule>(operation_value, left, right);
         es.rules.push_back(new_rule);
+        
+        // add parent to rule
+        if (std::holds_alternative<std::shared_ptr<rule>>(left))
+        {
+            auto l = std::get<std::shared_ptr<rule>>(left);
+            l->parent = new_rule;
+        }
+        if (std::holds_alternative<std::shared_ptr<rule>>(left))
+        {
+            auto l = std::get<std::shared_ptr<rule>>(left);
+            l->parent = new_rule;
+        }
 
+        // add rule to fact
         if (std::holds_alternative<std::shared_ptr<fact>>(left))
         {
             auto l = std::get<std::shared_ptr<fact>>(left);
             l->rules.push_back(new_rule);
         }
-
         if (std::holds_alternative<std::shared_ptr<fact>>(right))
         {
             auto r = std::get<std::shared_ptr<fact>>(right);
             r->rules.push_back(new_rule);
         }
+
+        left = new_rule;
     }
     return new_rule;
 }
 
 rule_node parser::operator()(ast::rule & r)
 {
+    // get left and right
     auto left = (*this)(r.left);
     auto right = (*this)(r.right);
 
+    // create new rule
     auto new_rule = std::make_shared<rule>(rule_operation::IMPLY, left, right);
     es.rules.push_back(new_rule);
 
+    // add parent to rule
+    if (std::holds_alternative<std::shared_ptr<rule>>(left))
+    {
+        auto l = std::get<std::shared_ptr<rule>>(left);
+        l->parent = new_rule;
+    }
+    if (std::holds_alternative<std::shared_ptr<rule>>(left))
+    {
+        auto l = std::get<std::shared_ptr<rule>>(left);
+        l->parent = new_rule;
+    }
+
+    // add rule to fact
     if (std::holds_alternative<std::shared_ptr<fact>>(left))
     {
         auto l = std::get<std::shared_ptr<fact>>(left);
 	    l->rules.push_back(new_rule);
     }
-
     if (std::holds_alternative<std::shared_ptr<fact>>(right))
     {
         auto r = std::get<std::shared_ptr<fact>>(right);
 	    r->rules.push_back(new_rule);
     }
+
     return new_rule;
 }
