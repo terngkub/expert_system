@@ -149,9 +149,3 @@ void rule::operation_not(fact_value * l_value, fact_value * r_value)
 	else
 		value = fact_value::TRUE;
 }
-
-/*
-L + M => K
-O + P => L + N
-N => M
-*/
