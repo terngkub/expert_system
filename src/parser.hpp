@@ -19,6 +19,7 @@ struct parser
     void set_initial_facts(std::vector<char> & result);
     void set_queries(std::vector<char> & result);
     void link_rule(rule_node node, std::shared_ptr<rule> new_rule);
+    std::shared_ptr<rule> create_new_rule(rule_operation operation, rule_node left, rule_node right);
 
     rule_node operator()(char);
     rule_node operator()(ast::operand &);

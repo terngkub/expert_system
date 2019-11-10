@@ -124,14 +124,29 @@ void parser::link_rule(rule_node node, std::shared_ptr<rule> new_rule)
 	{
 		[new_rule](std::shared_ptr<rule> l)
 		{
+			if (l == nullptr)
+				return;
 			l->parent = new_rule;
 		},
 		[new_rule](std::shared_ptr<fact> l)
 		{
+			if (l == nullptr)
+				return;
 			l->rules.push_back(new_rule);
 		}
 	},
 	node);
+}
+
+std::shared_ptr<rule> parser::create_new_rule(rule_operation operation_value, rule_node left, rule_node right)
+{
+	auto new_rule = std::make_shared<rule>(operation_value, left, right);
+	es.rules.push_back(new_rule);
+
+	link_rule(left, new_rule);
+	link_rule(right, new_rule);
+
+	return new_rule;
 }
 
 rule_node parser::operator()(char c)
@@ -156,12 +171,8 @@ rule_node parser::operator()(ast::signed_ & signed_)
 		return left;
 
 	auto right = std::make_shared<fact>();
-	auto new_rule = std::make_shared<rule>(rule_operation::NOT, left, right);
-	es.rules.push_back(new_rule);
 
-	link_rule(left, new_rule);
-
-	return new_rule;
+	return create_new_rule(rule_operation::NOT, left, right);
 }
 
 rule_node parser::operator()(ast::left_expr & left_expr)
@@ -186,16 +197,7 @@ rule_node parser::operator()(ast::left_expr & left_expr)
 			default: operation_value = rule_operation::XOR;
 		}
 
-		// create new rule
-		new_rule = std::make_shared<rule>(operation_value, left, right);
-		es.rules.push_back(new_rule);
-		
-		// link rules to parent or fact
-		link_rule(left, new_rule);
-		link_rule(right, new_rule);
-
-		// set left to new_rule
-		// to make a tree like structure
+		new_rule = create_new_rule(operation_value, left, right);
 		left = new_rule;
 	}
 	return new_rule;
@@ -224,16 +226,7 @@ rule_node parser::operator()(ast::right_expr & right_expr)
 			default: operation_value = rule_operation::XOR;
 		}
 
-		// create new rule
-		new_rule = std::make_shared<rule>(operation_value, left, right);
-		es.rules.push_back(new_rule);
-		
-		// link rules to parent or fact
-		link_rule(left, new_rule);
-		link_rule(right, new_rule);
-
-		// set left to new_rule
-		// to make a tree like structure
+		new_rule = create_new_rule(operation_value, left, right);
 		left = new_rule;
 	}
 	return new_rule;
@@ -241,17 +234,8 @@ rule_node parser::operator()(ast::right_expr & right_expr)
 
 rule_node parser::operator()(ast::rule & r)
 {
-	// get left and right
 	auto left = (*this)(r.left);
 	auto right = (*this)(r.right);
 
-	// create new rule
-	auto new_rule = std::make_shared<rule>(rule_operation::IMPLY, left, right);
-	es.rules.push_back(new_rule);
-
-	// link rules to parent or fact
-	link_rule(left, new_rule);
-	link_rule(right, new_rule);
-
-	return new_rule;
+	return create_new_rule(rule_operation::IMPLY, left, right);
 }
