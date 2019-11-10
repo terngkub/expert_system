@@ -86,7 +86,6 @@ void parser::parse()
 
 void parser::set_initial_facts(std::vector<char> & result)
 {
-	// TODO handle duplication case
 	for (auto const c : result)
 	{
 		es.facts[c]->value = fact_value::TRUE;
@@ -95,9 +94,10 @@ void parser::set_initial_facts(std::vector<char> & result)
 
 void parser::set_queries(std::vector<char> & result)
 {
-	// TODO handle duplication case
 	for (auto const c : result)
 	{
+		if (find(es.queries.begin(), es.queries.end(), c) != es.queries.end())
+			continue;
 		es.queries.push_back(c);
 	}
 }
