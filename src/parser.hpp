@@ -14,6 +14,10 @@ struct parser
     ~parser();
 
     void parse();
+    bool is_empty(std::string const & str);
+    bool is_comment(std::string const & str);
+    void set_initial_facts(std::vector<char> & result);
+    void set_queries(std::vector<char> & result);
 
     rule_node operator()(char);
     rule_node operator()(ast::operand &);
