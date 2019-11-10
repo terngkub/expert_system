@@ -25,7 +25,6 @@ struct parser
     rule_node operator()(ast::operand &);
     rule_node operator()(ast::signed_ &);
     rule_node operator()(ast::operation &);
-    rule_node operator()(ast::left_expr &);
-    rule_node operator()(ast::right_expr &);
+    rule_node operator()(ast::expr &);
     rule_node operator()(ast::rule &);
 };

@@ -9,15 +9,13 @@ namespace ast
 
 namespace x3 = boost::spirit::x3;
 
-struct left_expr;
-struct right_expr;
+struct expr;
 struct signed_;
 
 struct operand : x3::variant<
     char
     , x3::forward_ast<signed_>
-    , x3::forward_ast<left_expr>
-    , x3::forward_ast<right_expr>
+    , x3::forward_ast<expr>
 >
 {
     using base_type::base_type;
@@ -36,13 +34,7 @@ struct operation
     operand operand_;
 };
 
-struct left_expr
-{
-    operand first;
-    std::list<operation> rest;
-};
-
-struct right_expr
+struct expr
 {
     operand first;
     std::list<operation> rest;
@@ -50,15 +42,14 @@ struct right_expr
 
 struct rule
 {
-    left_expr left;
+    expr left;
     std::string operator_;
-    right_expr right;
+    expr right;
 };
 
 }
 
 BOOST_FUSION_ADAPT_STRUCT(ast::signed_, sign, operand_)
 BOOST_FUSION_ADAPT_STRUCT(ast::operation, operator_, operand_)
-BOOST_FUSION_ADAPT_STRUCT(ast::left_expr, first, rest)
-BOOST_FUSION_ADAPT_STRUCT(ast::right_expr, first, rest)
+BOOST_FUSION_ADAPT_STRUCT(ast::expr, first, rest)
 BOOST_FUSION_ADAPT_STRUCT(ast::rule, left, operator_, right)

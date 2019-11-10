@@ -175,20 +175,14 @@ rule_node parser::operator()(ast::signed_ & signed_)
 	return create_new_rule(rule_operation::NOT, left, right);
 }
 
-rule_node parser::operator()(ast::left_expr & left_expr)
+rule_node parser::operator()(ast::expr & expr)
 {
-	auto left = (*this)(left_expr.first);
-	if (left_expr.rest.size() == 0)
-		return left;
+	auto left = (*this)(expr.first);
 
-	std::shared_ptr<rule> new_rule;
-
-	for (auto & opt : left_expr.rest)
+	for (auto & opt : expr.rest)
 	{
-		// get right operand
 		auto right = (*this)(opt.operand_);
 
-		// set operation type
 		rule_operation operation_value;
 		switch (opt.operator_)
 		{
@@ -197,39 +191,9 @@ rule_node parser::operator()(ast::left_expr & left_expr)
 			default: operation_value = rule_operation::XOR;
 		}
 
-		new_rule = create_new_rule(operation_value, left, right);
-		left = new_rule;
+		left = create_new_rule(operation_value, left, right);
 	}
-	return new_rule;
-}
-
-
-rule_node parser::operator()(ast::right_expr & right_expr)
-{
-	auto left = (*this)(right_expr.first);
-	if (right_expr.rest.size() == 0)
-		return left;
-
-	std::shared_ptr<rule> new_rule;
-
-	for (auto & opt : right_expr.rest)
-	{
-		// get right operand
-		auto right = (*this)(opt.operand_);
-
-		// set operation type
-		rule_operation operation_value;
-		switch (opt.operator_)
-		{
-			case '+': operation_value = rule_operation::AND; break;
-			case '|': operation_value = rule_operation::OR; break;
-			default: operation_value = rule_operation::XOR;
-		}
-
-		new_rule = create_new_rule(operation_value, left, right);
-		left = new_rule;
-	}
-	return new_rule;
+	return left;
 }
 
 rule_node parser::operator()(ast::rule & r)

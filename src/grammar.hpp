@@ -10,12 +10,12 @@ namespace grammar
 namespace x3 = boost::spirit::x3;
 
 x3::rule<class right_term, ast::operand> const right_term("right_term");
-x3::rule<class right_expr, ast::right_expr> const right_expr("right_expr");
+x3::rule<class right_expr, ast::expr> const right_expr("right_expr");
 
 x3::rule<class lv1, ast::operand> const lv1("lv1");
-x3::rule<class lv2, ast::left_expr> const lv2("lv2");
-x3::rule<class lv3, ast::left_expr> const lv3("lv3");
-x3::rule<class left_expr, ast::left_expr> const left_expr("left_epxr");
+x3::rule<class lv2, ast::expr> const lv2("lv2");
+x3::rule<class lv3, ast::expr> const lv3("lv3");
+x3::rule<class left_expr, ast::expr> const left_expr("left_epxr");
 
 x3::rule<class input, ast::rule> const input("input");
 
