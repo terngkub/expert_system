@@ -88,6 +88,8 @@ void parser::set_initial_facts(std::vector<char> & result)
 {
 	for (auto const c : result)
 	{
+		if (es.facts.find(c) == es.facts.end())
+			throw std::runtime_error("there is no facts in the graph for this initial facts");
 		es.facts[c]->value = fact_value::TRUE;
 	}
 }
@@ -96,7 +98,9 @@ void parser::set_queries(std::vector<char> & result)
 {
 	for (auto const c : result)
 	{
-		if (find(es.queries.begin(), es.queries.end(), c) != es.queries.end())
+		if (es.facts.find(c) == es.facts.end())
+			throw std::runtime_error("there is no facts in the graph for this query");
+		if (std::find(es.queries.begin(), es.queries.end(), c) != es.queries.end())
 			continue;
 		es.queries.push_back(c);
 	}
