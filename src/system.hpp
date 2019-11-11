@@ -19,4 +19,5 @@ struct expert_system
     void operator()();
 
     fact_value query(std::shared_ptr<fact> f);
+    void reset();
 };

@@ -9,6 +9,39 @@ expert_system::expert_system(std::string & filename)
 	, parser_{*this, filename}
 {}
 
+void expert_system::reset()
+{
+	for (auto & f : facts)
+	{
+		f.second->value = fact_value::FALSE;
+		f.second->visited = false;
+	}
+	for (auto & r : rules)
+	{
+		r->value = fact_value::FALSE;
+		r->visited = false;
+	}
+}
+
+/*
+void expert_system::interactive_loop()
+{
+	while()
+	{
+		// run the first time
+		std::cout
+			<< "Begin new iteration\n"
+			<< "All the fact values are set to FALSE\n"
+			<< "Please enter the fact symbols that you want to be TRUE\n"
+			<< "=";
+		std::string fact_string;
+
+
+	}
+}
+*/
+
+
 void expert_system::operator()()
 {
 	parser_.parse();
@@ -16,6 +49,8 @@ void expert_system::operator()()
 	{
 		query(facts[c]);
 	}
+
+	// TODO only print fact value for queried facts
 	for (auto const & f : facts)
 	{
 		std::cout << f.first << ": " << f.second->value << '\n';

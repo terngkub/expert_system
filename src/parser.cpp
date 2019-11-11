@@ -22,66 +22,100 @@ void parser::parse()
 	using boost::spirit::x3::ascii::space;
 
 	std::string line;
-	int line_nb = 0;
 	int rule_nb = 0;
-	bool has_initial_facts = false;
-	bool has_queries = false;
 
 	enum grammar_type
 	{
 		RULE,
 		INITIAL_FACTS,
-		QUERIES
+		QUERY,
+		DONE
 	};
 
 	auto g = grammar_type::RULE;
 
 	while (getline(ifs, line))
 	{
-		++line_nb;
-
 		if (is_empty(line) || is_comment(line))
 			continue;
 
 		if (g == grammar_type::RULE)
 		{
-			ast::rule result;
-			auto iter = line.cbegin();
-			auto end = line.cend();
-			bool r = phrase_parse(iter, end, grammar::input, space, result);
-			if (r && iter == end)
+			if (parse_rules(line))
 			{
-				(*this)(result);
 				++rule_nb;
 				continue;
 			}
-			else
-				g = grammar_type::INITIAL_FACTS;
+			g = grammar_type::INITIAL_FACTS;
 		}
 		if (g == grammar_type::INITIAL_FACTS)
 		{
-			std::vector<char> result;
-			bool r = phrase_parse(line.cbegin(), line.cend(), grammar::initial_facts, space, result);
-			set_initial_facts(result);
-			if (r)
-				has_initial_facts = true;
-			g = grammar_type::QUERIES;
+			if (rule_nb == 0)
+				throw std::runtime_error("there is no rules in the input");
+
+			parse_initial_facts(line);
+			g = grammar_type::QUERY;
 		}
-		else if (g == grammar_type::QUERIES)
+		else if (g == grammar_type::QUERY)
 		{
-			std::vector<char> result;
-			bool r = phrase_parse(line.cbegin(), line.cend(), grammar::queries, space, result);
-			if (r)
-				has_queries = true;
-			set_queries(result);
+			parse_query(line);
+			g = grammar_type::DONE;
 		}
+		else
+			throw std::runtime_error("the input doesn't end after query");
 	}
-	if (rule_nb == 0)
-		throw std::runtime_error("there is no rules in the input");
-	if (!has_initial_facts)
+	if (g == grammar_type::INITIAL_FACTS)
 		throw std::runtime_error("there is no initial facts in the input");
-	if (!has_queries)
-		throw std::runtime_error("there is no queries in the input");
+	if (g == grammar_type::QUERY)
+		throw std::runtime_error("there is no query in the input");
+}
+
+bool parser::parse_rules(std::string const & str)
+{
+	auto it = str.begin();
+	auto end = str.end();
+	ast::rule result;
+
+	bool r = phrase_parse(it, end, grammar::input, boost::spirit::x3::ascii::space, result);
+
+	if (r)
+	{
+		if (it != end)
+			throw std::runtime_error("invalid rule");
+
+		(*this)(result);
+		return true;
+	}
+
+	return false;
+}
+
+void parser::parse_initial_facts(std::string const & str)
+{
+	auto it = str.begin();
+	auto end = str.end();
+	std::vector<char> result;
+
+	bool r = phrase_parse(it, end, grammar::initial_facts, boost::spirit::x3::space, result);
+
+	if (!r || it != end)
+		throw std::runtime_error("invalid initial facts");
+
+	set_initial_facts(result);
+}
+
+void parser::parse_query(std::string const & str)
+{
+	auto it = str.begin();
+	auto end = str.end();
+	std::vector<char> result;
+
+	bool r = phrase_parse(str.cbegin(), str.cend(), grammar::queries, boost::spirit::x3::ascii::space, result);
+
+	if (!r || it != end)
+		throw std::runtime_error("invalid query");
+
+	set_queries(result);
 }
 
 void parser::set_initial_facts(std::vector<char> & result)
