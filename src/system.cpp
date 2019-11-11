@@ -24,6 +24,7 @@ void expert_system::operator()()
 
 fact_value expert_system::query(std::shared_ptr<fact> f)
 {
+	f->visited = true;
 	for (auto r : f->rules)
 	{
 		r->evaluate();
