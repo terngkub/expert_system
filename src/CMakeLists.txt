@@ -1,5 +1,5 @@
 
-find_package(Boost)
+find_package(Boost COMPONENTS program_options REQUIRED)
 if (Boost_FOUND)
     include_directories((${Boost_INCLUDE_DIRS}))
 	add_executable(expert_system
@@ -8,6 +8,8 @@ if (Boost_FOUND)
 		fact.hpp
 		grammar.hpp
 		main.cpp
+		options.cpp
+		options.hpp
 		parser.cpp
 		parser.hpp
 		rule.cpp
