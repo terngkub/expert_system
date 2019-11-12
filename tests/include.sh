@@ -1,5 +1,10 @@
 #!/usr/bin/env
 
+get_line()
+{
+    cat tests/AND_conclusion | sed -n $1p 
+}
+
 get_char()
 {
     cat tests/AND_conclusion | sed -n $1p | head -c 1
@@ -7,11 +12,25 @@ get_char()
 
 do_comment()
 {
-    if ! [ $(get_char $1) == "#" ]
+    Start=$1
+    End=$2
+
+    while ($Start <= $end)
+    do
+        if ! [ $(get_char $1) == "#" ]
+        then
+            to_replace=$(get_char $1)
+            sed -e "s/^$to_replace/#/" somefile
+        fi
+        $Start++
+    done
+}
+
+do_uncomment()
+{
+    if [ $(get_char $1) == "#" ]
     then
-        to_replace=$(get_char $1)
-        echo $to_replace
-        sed -e "s/^$to_replace/#/" somefile
-        #cat tests/AND_conclusion | sed -n $1p | head -c 1 | sed -e 's/^/#/'
+        ($get_line $1) | sed -r 's/^.{1}//'
     fi
+    done
 }
