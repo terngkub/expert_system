@@ -191,7 +191,7 @@ rule_node parser::operator()(char c)
 {
 	if (es.facts.find(c) == es.facts.end())
 	{
-		es.facts[c] = std::make_shared<fact>();
+		es.facts[c] = std::make_shared<fact>(c);
 	}
 	return es.facts[c];
 }

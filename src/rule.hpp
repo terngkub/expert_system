@@ -9,8 +9,7 @@ enum rule_operation
     AND,
     OR,
     XOR,
-    IMPLY,
-    IAOF
+    IMPLY
 };
 
 std::ostream & operator<<(std::ostream & os, rule_operation const & rhs);
@@ -42,14 +41,13 @@ struct rule
         , visited{false}
     {}
 
-    fact_value * get_fact_value(rule_node node);
-    void to_true(rule_node node);
+    fact_value * get_fact_value(rule_node node, int i);
 
-    void evaluate();
-    void operation_and(fact_value * l_value, fact_value * r_value);
-    void operation_or(fact_value * l_value, fact_value * r_value);
-    void operation_imply(fact_value * l_value, fact_value * r_value);
-    void operation_xor(fact_value * l_value, fact_value * r_value);
-    void operation_not(fact_value * initial_value, fact_value * r_value);
-    void operation_if(fact_value * initial_value, fact_value * r_value);
+    void evaluate(int i);
+    void operation_not(fact_value * initial_value, fact_value * r_value, int i);
+    void operation_and(fact_value * l_value, fact_value * r_value, int i);
+    void operation_or(fact_value * l_value, fact_value * r_value, int i);
+    void operation_xor(fact_value * l_value, fact_value * r_value, int i);
+    void operation_imply(fact_value * l_value, fact_value * r_value, int i);
+    void to_true(rule_node node);
 };

@@ -12,6 +12,7 @@ void options::get_options(int argc, char ** argv)
     visible.add_options()
         ("help", "show help message")
         ("interactive,i", "interactive mode, user can change initial facts and query without having to rerun the program")
+        ("visualisation,v", "reasoning visualisation mode, show step-by-step of what happen inside the background")
         ("debug,d", "debug mode, show all the values after evaluation")
     ;
     hidden.add_options()

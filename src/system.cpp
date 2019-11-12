@@ -58,7 +58,7 @@ void expert_system::query(std::shared_ptr<fact> f)
 	f->visited = true;
 	for (auto r : f->rules)
 	{
-		r->evaluate();
+		r->evaluate(0);
 	}
 }
 

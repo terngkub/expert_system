@@ -5,78 +5,145 @@ std::ostream & operator<<(std::ostream & os, rule_operation const & rhs)
 {
 	switch (rhs)
 	{
-	case NOT:	os << "NOT"; break;
-	case AND:	os << "AND"; break;
-	case OR:	os << "OR"; break;
-	case XOR:	os << "XOR"; break;
-	case IMPLY:	os << "IMPLY"; break;
-	default:	os << "IAOF"; break;
+	case NOT:	os << "!"; break;
+	case AND:	os << "+"; break;
+	case OR:	os << "|"; break;
+	case XOR:	os << "^"; break;
+	default:	os << "=>";
 	}
 	return os;
 }
 
-fact_value * rule::get_fact_value(rule_node node)
+std::string indent(int i)
+{
+	std::string str{};
+	for (auto j = 0; j < i; ++j)
+		str += "    ";
+	return str;
+}
+
+const std::string hr{"------------------------------"};
+
+fact_value * rule::get_fact_value(rule_node node, int i)
 {
 	return std::visit(overloaded
 		{
-			[](std::shared_ptr<fact> f)
-			{ 
-				if (f->visited)
-					return &(f->value);
-				f->visited = true;
+			[i](std::shared_ptr<fact> f)
+			{
+				std::cout << indent(i) << hr << '\n';
+				std::cout << indent(i) << "Trace back to fact " << f->name << '\n';
 
-				for (auto r : f->rules)
+				if (!f->visited)
 				{
-					r->evaluate();
+					f->visited = true;
+					for (auto r : f->rules)
+						r->evaluate(i + 1);
 				}
+
+				std::cout << indent(i) << "Value : " << f->value << '\n';
+
 				return &(f->value);
 			},
-			[](std::shared_ptr<rule> r) {
-				if (r->visited)
-					return &(r->value);
-				r->visited = true;
-					
-				r->evaluate(); 
+
+			[i](std::shared_ptr<rule> r)
+			{
+				r->evaluate(i); 
 				return &(r->value);
 			}
 		},
 		node);
 }
 
-void rule::evaluate()
+void rule::evaluate(int i)
 {
-	auto l_value = get_fact_value(left);
-	auto r_value = get_fact_value(right);
+	if (visited) return;
+	visited = true;
+
+	std::cout << indent(i) << hr << "\n";
+	std::cout << indent(i) << "Trace back to rule " << operation << "\n";
+	std::cout << indent(i) << "Desc   : \n";
+	std::cout << indent(i) << "Parent : \n\n";
+
+	auto l_value = get_fact_value(left, i + 1);
+	auto r_value = get_fact_value(right, i + 1);
+
+	std::cout << indent(i + 1) << hr << "\n\n";
 	
-	if (*r_value == fact_value::NONE && operation != NOT)
-		std::cout << "/!\\ THERE IS A ISSUE /!\\ \n";
 	switch(operation)
 	{
-		case rule_operation::AND: operation_and(l_value, r_value); break;
-		case rule_operation::OR: operation_or(l_value, r_value); break;
-		case rule_operation::XOR: operation_xor(l_value, r_value); break;
-		case rule_operation::NOT: operation_not(l_value, r_value); break; 
-		default: operation_imply(l_value, r_value);
+		case rule_operation::AND: operation_and(l_value, r_value, i); break;
+		case rule_operation::OR: operation_or(l_value, r_value, i); break;
+		case rule_operation::XOR: operation_xor(l_value, r_value, i); break;
+		case rule_operation::NOT: operation_not(l_value, r_value, i); break; 
+		default: operation_imply(l_value, r_value, i);
 	}
 
+
 	if (parent != nullptr)
-		parent->evaluate();
+	{
+		if (!parent->visited)
+		{
+			std::cout << indent(i) << "Value : " << value << "\n\n";
+			std::cout << indent(i) << "Trace back to parent\n\n";
+		}
+
+		parent->evaluate(i + 1);
+	}
+
+	std::cout << indent(i) << "Value : " << value << '\n';
 }
 
-void rule::operation_and(fact_value * l_value, fact_value * r_value)
+void rule::operation_not(fact_value * l_value, fact_value * r_value, int i)
+{
+	if (*l_value == fact_value::TRUE)
+		value = fact_value::FALSE;
+	else
+		value = fact_value::TRUE;
+
+	std::cout << indent(i) << "Reasoning : !" << *l_value << " == " << value << "\n";
+}
+
+void rule::operation_and(fact_value * l_value, fact_value * r_value, int i)
 {
 	if (*l_value == fact_value::TRUE && *r_value == fact_value::TRUE)
 		value = fact_value::TRUE;
 	else
 		value = fact_value::FALSE;
+
+	std::cout << indent(i) << "Reasoning : " << *l_value << " + " << *r_value << " == " << value << "\n";
 }
 
-void rule::operation_or(fact_value * l_value, fact_value * r_value)
+void rule::operation_or(fact_value * l_value, fact_value * r_value, int i)
 {
+	std::cout << indent(i) << "OR\n";
 	if (*l_value == fact_value::TRUE || *r_value == fact_value::TRUE)
 		value = fact_value::TRUE;
 	else
 		value = fact_value::FALSE;
+
+	std::cout << indent(i) << "Reasoning : " << *l_value << " | " << *r_value << " == " << value << "\n";
+}
+
+void rule::operation_xor(fact_value * l_value, fact_value * r_value, int i)
+{
+	if ( ( *l_value == fact_value::TRUE && *r_value == fact_value::FALSE ) 
+	||  ( *l_value == fact_value::FALSE && *r_value == fact_value::TRUE)  )
+		value = fact_value::TRUE;
+	else
+		value = fact_value::FALSE;
+
+	std::cout << indent(i) << "Reasoning : " << *l_value << " ^ " << *r_value << " == " << value << "\n";
+}
+
+void rule::operation_imply(fact_value * l_value, fact_value * r_value, int i)
+{
+	std::cout << indent(i) << "Reasoning : " << *l_value << " => " << *r_value << "\n";
+
+	if (*l_value == fact_value::TRUE && *r_value == fact_value::FALSE)
+	{
+		std::cout << indent(i) << "XX has to be TRUE\n";
+		to_true(right);
+	}
 }
 
 void rule::to_true(rule_node node)
@@ -97,27 +164,3 @@ void rule::to_true(rule_node node)
 	node);
 }
 
-void rule::operation_imply(fact_value * l_value, fact_value * r_value)
-{
-	if (*l_value == fact_value::TRUE && *r_value == fact_value::FALSE)
-	{
-		to_true(right);
-	}
-}
-
-void rule::operation_xor(fact_value * l_value, fact_value * r_value)
-{
-	if ( ( *l_value == fact_value::TRUE && *r_value == fact_value::FALSE ) 
-	||  ( *l_value == fact_value::FALSE && *r_value == fact_value::TRUE)  )
-		value = fact_value::TRUE;
-	else
-		value = fact_value::FALSE;
-}
-
-void rule::operation_not(fact_value * l_value, fact_value * r_value)
-{
-	if (*l_value == fact_value::TRUE)
-		value = fact_value::FALSE;
-	else
-		value = fact_value::TRUE;
-}
