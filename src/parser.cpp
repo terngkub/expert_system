@@ -6,6 +6,7 @@
 parser::parser(expert_system & es, std::string & filename)
 	: es{es}
 	, ifs{}
+	, rule_nb{0}
 {
 	ifs.open(filename);
 	if (ifs.fail())
@@ -178,7 +179,7 @@ void parser::link_rule(rule_node node, std::shared_ptr<rule> new_rule)
 
 std::shared_ptr<rule> parser::create_new_rule(rule_operation operation_value, rule_node left, rule_node right)
 {
-	auto new_rule = std::make_shared<rule>(operation_value, left, right);
+	auto new_rule = std::make_shared<rule>(++rule_nb, operation_value, left, right);
 	es.rules.push_back(new_rule);
 
 	link_rule(left, new_rule);

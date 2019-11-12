@@ -9,6 +9,7 @@ struct parser
 {
     expert_system & es;
     std::ifstream ifs;
+    int rule_nb;
 
     parser(expert_system & es, std::string & filename);
     ~parser();

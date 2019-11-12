@@ -24,6 +24,7 @@ using rule_node = std::variant<std::shared_ptr<fact>, std::shared_ptr<rule>>;
 
 struct rule
 {
+    int name;
     rule_operation operation;
     rule_node left;
     rule_node right;
@@ -32,8 +33,9 @@ struct rule
     bool visited;
 
     template<class L, class R>
-    rule(rule_operation operation, L left, R right)
-        : operation{operation}
+    rule(int name, rule_operation operation, L left, R right)
+        : name{name}
+        , operation{operation}
         , left(left)
         , right(right)
         , parent{}

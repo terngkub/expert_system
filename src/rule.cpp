@@ -60,9 +60,10 @@ void rule::evaluate(int i)
 	visited = true;
 
 	std::cout << indent(i) << hr << "\n";
-	std::cout << indent(i) << "Trace back to rule " << operation << "\n";
+	std::cout << indent(i) << "Trace back to rule " << name << "\n";
 	std::cout << indent(i) << "Desc   : \n";
-	std::cout << indent(i) << "Parent : \n\n";
+	std::string parent_str = (parent != nullptr) ? "rule " + std::to_string(parent->name) : "None";
+	std::cout << indent(i) << "Parent : " << parent_str << "\n\n";
 
 	auto l_value = get_fact_value(left, i + 1);
 	auto r_value = get_fact_value(right, i + 1);
@@ -77,7 +78,6 @@ void rule::evaluate(int i)
 		case rule_operation::NOT: operation_not(l_value, r_value, i); break; 
 		default: operation_imply(l_value, r_value, i);
 	}
-
 
 	if (parent != nullptr)
 	{
