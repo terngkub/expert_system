@@ -110,7 +110,7 @@ void parser::parse_query(std::string const & str)
 	auto end = str.end();
 	std::vector<char> result;
 
-	bool r = phrase_parse(str.cbegin(), str.cend(), grammar::queries, boost::spirit::x3::ascii::space, result);
+	bool r = phrase_parse(it, end, grammar::queries, boost::spirit::x3::ascii::space, result);
 
 	if (!r || it != end)
 		throw std::runtime_error("invalid query");
