@@ -19,10 +19,14 @@ struct expert_system
     void operator()();
     void run();
     void query(std::shared_ptr<fact> f);
+    void print();
+    
+    void debug_print();
 
     void interactive_loop();
     void interactive_reset();
     void interactive_exit(std::string str);
     void interactive_initial_facts();
     void interactive_query();
+
 };

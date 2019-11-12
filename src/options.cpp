@@ -11,7 +11,8 @@ void options::get_options(int argc, char ** argv)
 {
     visible.add_options()
         ("help", "show help message")
-        ("interactive,i", "run program with interactive mode, user can change initial facts and query without having to rerun the program")
+        ("interactive,i", "interactive mode, user can change initial facts and query without having to rerun the program")
+        ("debug,d", "debug mode, show all the values after evaluation")
     ;
     hidden.add_options()
         ("filename", boost::program_options::value<std::string>(), "input file path")

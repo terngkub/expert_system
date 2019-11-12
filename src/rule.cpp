@@ -65,7 +65,6 @@ void rule::evaluate()
 
 void rule::operation_and(fact_value * l_value, fact_value * r_value)
 {
-	std::cout << "and: " << *l_value << " " << *r_value << ' ' << visited << '\n';
 	if (*l_value == fact_value::TRUE && *r_value == fact_value::TRUE)
 		value = fact_value::TRUE;
 	else
@@ -74,7 +73,6 @@ void rule::operation_and(fact_value * l_value, fact_value * r_value)
 
 void rule::operation_or(fact_value * l_value, fact_value * r_value)
 {
-	std::cout << "or: " << *l_value << " " << *r_value << ' ' << visited << '\n';
 	if (*l_value == fact_value::TRUE || *r_value == fact_value::TRUE)
 		value = fact_value::TRUE;
 	else
@@ -101,7 +99,6 @@ void rule::to_true(rule_node node)
 
 void rule::operation_imply(fact_value * l_value, fact_value * r_value)
 {
-	std::cout << "imply: " << *l_value << " " << *r_value << ' ' << visited << '\n';
 	if (*l_value == fact_value::TRUE && *r_value == fact_value::FALSE)
 	{
 		to_true(right);
@@ -110,7 +107,6 @@ void rule::operation_imply(fact_value * l_value, fact_value * r_value)
 
 void rule::operation_xor(fact_value * l_value, fact_value * r_value)
 {
-	std::cout << "xor: " << *l_value << " " << *r_value << ' ' << visited << '\n';
 	if ( ( *l_value == fact_value::TRUE && *r_value == fact_value::FALSE ) 
 	||  ( *l_value == fact_value::FALSE && *r_value == fact_value::TRUE)  )
 		value = fact_value::TRUE;
@@ -120,7 +116,6 @@ void rule::operation_xor(fact_value * l_value, fact_value * r_value)
 
 void rule::operation_not(fact_value * l_value, fact_value * r_value)
 {
-	std::cout << "not: " << *l_value << " " << *r_value << ' ' << visited << '\n';
 	if (*l_value == fact_value::TRUE)
 		value = fact_value::FALSE;
 	else

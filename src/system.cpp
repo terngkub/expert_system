@@ -23,14 +23,33 @@ void expert_system::operator()()
 void expert_system::run()
 {
 	for (auto const c : queries)
-	{
 		query(facts[c]);
-	}
 
-	// TODO only print fact value for queried facts
+	if (options::vm.count("debug"))
+		debug_print();
+	else
+		print();
+}
+
+void expert_system::print()
+{
+	for (auto c : queries)
+	{
+		std::cout << c << ": " << facts[c]->value << '\n';
+	}
+}
+
+void expert_system::debug_print()
+{
+	std::cout << "Facts:\n";
 	for (auto const & f : facts)
 	{
 		std::cout << f.first << ": " << f.second->value << '\n';
+	}
+	std::cout << "\nRules:\n";
+	for (auto const & r : rules)
+	{
+		std::cout << r->operation << ": " << r->value << '\n';
 	}
 }
 
@@ -45,6 +64,13 @@ void expert_system::query(std::shared_ptr<fact> f)
 
 void expert_system::interactive_loop()
 {
+	std::cout
+		<< "*************** INTERACTIVE MODE ***************\n\n"
+		<< "You can change facts and query at each iteration\n"
+		<< "Type \"exit\" (without quotes) to quit the program\n\n"
+		<< "------------------------------------------------\n\n"
+		<< "First iteration\n\n";
+
 	while(true)
 	{
 		run();
@@ -70,8 +96,9 @@ void expert_system::interactive_reset()
 
 	queries = std::vector<char>{};
 
-	std::cout << "Begin new iteration, every values are resetted to FALSE\n";
-	std::cout << "Type \"exit\" (without quotes) to quit the program\n";
+	std::cout
+		<< "\n------------------------------------------------\n\n"
+		<< "Begin new iteration\n\n";
 }
 
 void expert_system::interactive_exit(std::string str)
@@ -79,7 +106,7 @@ void expert_system::interactive_exit(std::string str)
 	str = std::regex_replace(str, std::regex("(^\\s+)|(\\s+$)"),"");
 	if (str == "exit")
 	{
-		std::cout << "Ending the program\n";
+		std::cout << "\nClosing the program\nThank you for using our Expert System\n";
 		std::exit(EXIT_SUCCESS);
 	}
 }
@@ -88,16 +115,17 @@ void expert_system::interactive_initial_facts()
 {
 	try
 	{
-		std::cout << "Please enter initial facts:\n";
+		std::cout << "Enter initial facts: ";
 		std::string str{};
 		getline(std::cin, str);
 		interactive_exit(str);
 		str = '=' + str;
 		parser_.parse_initial_facts(str);
+		std::cout << '\n';
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << "error: " << e.what() << '\n';
+		std::cerr << "error: " << e.what() << "\n\n";
 		interactive_initial_facts();
 	}
 }
@@ -106,16 +134,17 @@ void expert_system::interactive_query()
 {
 	try
 	{
-		std::cout << "Please enter query:\n";
+		std::cout << "Enter query: ";
 		std::string str{};
 		getline(std::cin, str);
 		interactive_exit(str);
 		str = '?' + str;
 		parser_.parse_query(str);
+		std::cout << '\n';
 	}
 	catch (std::exception & e)
 	{
-		std::cerr << "error: " << e.what() << '\n';
+		std::cerr << "error: " << e.what() << "\n\n";
 		interactive_query();
 	}
 }
