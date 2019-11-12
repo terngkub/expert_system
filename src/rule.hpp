@@ -51,5 +51,7 @@ struct rule
     void operation_or(fact_value * l_value, fact_value * r_value, int i);
     void operation_xor(fact_value * l_value, fact_value * r_value, int i);
     void operation_imply(fact_value * l_value, fact_value * r_value, int i);
-    void to_true(rule_node node);
+    void to_true(rule_node node, int i);
+
+    std::string get_name(rule_node node);
 };

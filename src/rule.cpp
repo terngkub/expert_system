@@ -54,6 +54,23 @@ fact_value * rule::get_fact_value(rule_node node, int i)
 		node);
 }
 
+std::string rule::get_name(rule_node node)
+{
+	return std::visit(overloaded
+		{
+			[](std::shared_ptr<fact> f)
+			{
+				std::string name{f->name};
+				return name;
+			},
+			[](std::shared_ptr<rule> r)
+			{
+				return "rule " + std::to_string(r->name);
+			}
+		},
+		node);
+}
+
 void rule::evaluate(int i)
 {
 	if (visited) return;
@@ -61,7 +78,7 @@ void rule::evaluate(int i)
 
 	std::cout << indent(i) << hr << "\n";
 	std::cout << indent(i) << "Trace back to rule " << name << "\n";
-	std::cout << indent(i) << "Desc   : \n";
+	std::cout << indent(i) << "Desc   : " << get_name(left) << ' ' << operation << ' ' << get_name(right) << "\n";
 	std::string parent_str = (parent != nullptr) ? "rule " + std::to_string(parent->name) : "None";
 	std::cout << indent(i) << "Parent : " << parent_str << "\n\n";
 
@@ -88,6 +105,8 @@ void rule::evaluate(int i)
 		}
 
 		parent->evaluate(i + 1);
+
+		std::cout << indent(i + 1) << hr << "\n\n";
 	}
 
 	std::cout << indent(i) << "Value : " << value << '\n';
@@ -115,7 +134,6 @@ void rule::operation_and(fact_value * l_value, fact_value * r_value, int i)
 
 void rule::operation_or(fact_value * l_value, fact_value * r_value, int i)
 {
-	std::cout << indent(i) << "OR\n";
 	if (*l_value == fact_value::TRUE || *r_value == fact_value::TRUE)
 		value = fact_value::TRUE;
 	else
@@ -139,26 +157,37 @@ void rule::operation_imply(fact_value * l_value, fact_value * r_value, int i)
 {
 	std::cout << indent(i) << "Reasoning : " << *l_value << " => " << *r_value << "\n";
 
+	value = fact_value::TRUE;
 	if (*l_value == fact_value::TRUE && *r_value == fact_value::FALSE)
 	{
-		std::cout << indent(i) << "XX has to be TRUE\n";
-		to_true(right);
+		std::cout << indent(i) << get_name(right) << " has to be TRUE\n\n";
+		to_true(right, i + 1);
 	}
 }
 
-void rule::to_true(rule_node node)
+void rule::to_true(rule_node node, int i)
 {
 	std::visit(overloaded
 	{
-		[](std::shared_ptr<fact> f)
+		[this, i](std::shared_ptr<fact> f)
 		{
+			std::cout << indent(i) << hr << "\n";
+			std::cout << indent(i) << "Changing fact " << name << " to TRUE\n";
 			f->value = fact_value::TRUE;
 		},
-		[](std::shared_ptr<rule> r)
+		[this, i](std::shared_ptr<rule> r)
 		{
+			std::cout << indent(i) << hr << "\n";
+			std::cout << indent(i) << "Changing rule " << name << " value to TRUE\n";
+			std::cout << indent(i) << "Desc   : " << get_name(left) << ' ' << operation << ' ' << get_name(right) << "\n\n";
+
 			r->value = fact_value::TRUE;
-			r->to_true(r->left);
-			r->to_true(r->right);
+			r->to_true(r->left, i + 1);
+			r->to_true(r->right, i + 1);
+
+			std::cout << indent(i + 1) << hr << "\n\n";
+			std::cout << indent(i) << "Finished changing rule " << name << " values\n";
+			std::cout << indent(i) << hr << "\n\n";
 		}
 	},
 	node);
