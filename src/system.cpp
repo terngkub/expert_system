@@ -1,3 +1,4 @@
+#include "options.hpp"
 #include "system.hpp"
 #include <string>
 #include <iostream>
@@ -103,7 +104,10 @@ void expert_system::run()
 void expert_system::operator()()
 {
 	parser_.parse();
-	interactive_loop();
+	if (options::vm.count("interactive"))
+		interactive_loop();
+	else
+		run();
 }
 
 void expert_system::query(std::shared_ptr<fact> f)
