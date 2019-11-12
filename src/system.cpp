@@ -1,7 +1,8 @@
 #include "options.hpp"
 #include "system.hpp"
-#include <string>
 #include <iostream>
+#include <regex>
+#include <string>
 
 expert_system::expert_system(std::string & filename)
 	: facts{}
@@ -10,7 +11,50 @@ expert_system::expert_system(std::string & filename)
 	, parser_{*this, filename}
 {}
 
-void expert_system::reset()
+void expert_system::operator()()
+{
+	parser_.parse();
+	if (options::vm.count("interactive"))
+		interactive_loop();
+	else
+		run();
+}
+
+void expert_system::run()
+{
+	for (auto const c : queries)
+	{
+		query(facts[c]);
+	}
+
+	// TODO only print fact value for queried facts
+	for (auto const & f : facts)
+	{
+		std::cout << f.first << ": " << f.second->value << '\n';
+	}
+}
+
+void expert_system::query(std::shared_ptr<fact> f)
+{
+	f->visited = true;
+	for (auto r : f->rules)
+	{
+		r->evaluate();
+	}
+}
+
+void expert_system::interactive_loop()
+{
+	while(true)
+	{
+		run();
+		interactive_reset();
+		interactive_initial_facts();
+		interactive_query();
+	}
+}
+
+void expert_system::interactive_reset()
 {
 	for (auto & f : facts)
 	{
@@ -32,7 +76,7 @@ void expert_system::reset()
 
 void expert_system::interactive_exit(std::string str)
 {
-	// improve exit parsing
+	str = std::regex_replace(str, std::regex("(^\\s+)|(\\s+$)"),"");
 	if (str == "exit")
 	{
 		std::cout << "Ending the program\n";
@@ -44,7 +88,7 @@ void expert_system::interactive_initial_facts()
 {
 	try
 	{
-		std::cout << "Please enter initial facts\n";
+		std::cout << "Please enter initial facts:\n";
 		std::string str{};
 		getline(std::cin, str);
 		interactive_exit(str);
@@ -62,7 +106,7 @@ void expert_system::interactive_query()
 {
 	try
 	{
-		std::cout << "Please enter query\n";
+		std::cout << "Please enter query:\n";
 		std::string str{};
 		getline(std::cin, str);
 		interactive_exit(str);
@@ -73,48 +117,5 @@ void expert_system::interactive_query()
 	{
 		std::cerr << "error: " << e.what() << '\n';
 		interactive_query();
-	}
-}
-
-void expert_system::interactive_loop()
-{
-	while(true)
-	{
-		run();
-		reset();
-		interactive_initial_facts();
-		interactive_query();
-	}
-}
-
-void expert_system::run()
-{
-	for (auto const c : queries)
-	{
-		query(facts[c]);
-	}
-
-	// TODO only print fact value for queried facts
-	for (auto const & f : facts)
-	{
-		std::cout << f.first << ": " << f.second->value << '\n';
-	}
-}
-
-void expert_system::operator()()
-{
-	parser_.parse();
-	if (options::vm.count("interactive"))
-		interactive_loop();
-	else
-		run();
-}
-
-void expert_system::query(std::shared_ptr<fact> f)
-{
-	f->visited = true;
-	for (auto r : f->rules)
-	{
-		r->evaluate();
 	}
 }
