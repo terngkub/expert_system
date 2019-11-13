@@ -3,6 +3,8 @@
 #include <iostream>
 #include <variant>
 
+const std::string hr{"------------------------------"};
+
 enum rule_operation
 {
     NOT,
