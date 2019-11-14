@@ -42,14 +42,20 @@ void expert_system::print()
 void expert_system::debug_print()
 {
 	std::cout << "Facts:\n";
+
 	for (auto const & f : facts)
 	{
 		std::cout << f.first << ": " << f.second->value << '\n';
 	}
+
 	std::cout << "\nRules:\n";
-	for (auto const & r : rules)
+
+	for (auto r : rules)
 	{
-		std::cout << r->operation << ": " << r->value << '\n';
+		if (r->operation == rule_operation::NOT)
+			std::cout << "rule " << r->name << ": !" << r->get_name(r->left) << " (" << r->value << ")\n";
+		else
+			std::cout << "rule " << r->name << ": " << r->get_name(r->left) << ' ' << r->operation << ' ' << r->get_name(r->right) << " (" << r->value << ")\n";
 	}
 }
 
