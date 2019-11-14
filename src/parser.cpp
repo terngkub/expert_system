@@ -65,7 +65,9 @@ void parser::parse()
 		else
 			throw std::runtime_error("the input doesn't end after query");
 	}
-	if (g == grammar_type::INITIAL_FACTS)
+	if (rule_nb == 0)
+		throw std::runtime_error("there is no rules in the input");
+	if (g == grammar_type::RULE || g == grammar_type::INITIAL_FACTS)
 		throw std::runtime_error("there is no initial facts in the input");
 	if (g == grammar_type::QUERY)
 		throw std::runtime_error("there is no query in the input");

@@ -47,9 +47,9 @@ fact_value * rule::get_fact_value(rule_node node, int i)
 						for (auto r : rules)
 						{
 							if (r->operation == rule_operation::NOT)
-								std::cout << "rule " << r->name << ": !" << r->get_name(r->left) << "\n";
+								std::cout << indent(i) << "rule " << r->name << ": !" << r->get_name(r->left) << "\n";
 							else
-								std::cout << "rule " << r->name << ": " << r->get_name(r->left) << ' ' << r->operation << ' ' << r->get_name(r->right) << "\n";
+								std::cout << indent(i) << "rule " << r->name << ": " << r->get_name(r->left) << ' ' << r->operation << ' ' << r->get_name(r->right) << "\n";
 						}
 						std::cout << '\n';
 					}
