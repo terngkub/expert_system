@@ -55,36 +55,46 @@ void expert_system::debug_print()
 
 void expert_system::query(std::shared_ptr<fact> f)
 {
+	if (options::vm.count("visualisation"))
+		std::cout << "Query fact " << f->name << "\n";
+
 	f->visited = true;
 
-	std::cout << "Query fact " << f->name << "\n";
 	std::vector<std::shared_ptr<rule>> rules{};
+
 	for (auto r : f->rules)
 	{
 		if (!r->visited)
 			rules.push_back(r);
 	}
+
 	if (rules.size() > 0)
 	{
-		std::cout << "Linked rules:\n";
-		for (auto r : rules)
+		if (options::vm.count("visualisation"))
 		{
-			if (r->operation == rule_operation::NOT)
-				std::cout << "rule " << r->name << ": !" << r->get_name(r->left) << "\n";
-			else
-				std::cout << "rule " << r->name << ": " << r->get_name(r->left) << ' ' << r->operation << ' ' << r->get_name(r->right) << "\n";
+			std::cout << "Linked rules:\n";
+			for (auto r : rules)
+			{
+				if (r->operation == rule_operation::NOT)
+					std::cout << "rule " << r->name << ": !" << r->get_name(r->left) << "\n";
+				else
+					std::cout << "rule " << r->name << ": " << r->get_name(r->left) << ' ' << r->operation << ' ' << r->get_name(r->right) << "\n";
+			}
+			std::cout << '\n';
 		}
-		std::cout << '\n';
 
 		for (auto r : rules)
 		{
 			r->evaluate(1);
 		}
-		std::cout << "    " << hr << "\n\n";
+
+		if (options::vm.count("visualisation"))
+			std::cout << "    " << hr << "\n\n";
 	}
 	else
 	{
-		std::cout << "All rules that link to fact " << f->name << " is already visited\n\n";
+		if (options::vm.count("visualisation"))
+			std::cout << "All rules that link to fact " << f->name << " is already visited\n\n";
 	}
 }
 
