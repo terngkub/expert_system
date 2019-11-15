@@ -2,35 +2,33 @@
 
 get_line()
 {
-    cat tests/AND_conclusion | sed -n $1p 
+    cat $1 | sed -n $2p 
 }
 
 get_char()
 {
-    cat tests/AND_conclusion | sed -n $1p | head -c 1
+    cat $1 | sed -n $2p | head -c 1
 }
 
 do_comment()
 {
-    Start=$1
-    End=$2
-
-    while ($Start <= $end)
+    Start=$2
+    End=$3
+    while (( $Start <= $End ))
     do
-        if ! [ $(get_char $1) == "#" ]
+        if ! [ $(get_char $1 $2) == "#" ]
         then
-            to_replace=$(get_char $1)
-            sed -e "s/^$to_replace/#/" somefile
+            to_replace=$(get_char $1 $2)
+            sed -e "s/^$to_replace/#/" $1
         fi
-        $Start++
+        ((Start++))
     done
 }
 
 do_uncomment()
 {
-    if [ $(get_char $1) == "#" ]
+    if [ $(get_char $1 $2) == "#" ]
     then
-        ($get_line $1) | sed -r 's/^.{1}//'
+        get_line $1 $2 | sed -r 's/^.{1}//'
     fi
-    done
 }

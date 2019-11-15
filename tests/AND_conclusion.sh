@@ -13,11 +13,12 @@ then
 fi
 
 echo "----- First Test (=A with ?ABCDE, excepted result here) ----"
-do_comment Start_line End_line
-do_uncomment Actuall_line
-Actuall_line++
+do_comment tests/AND_conclusion $Start_line $End_line
+do_uncomment tests/AND_conclusion $Actuall_line
+./bin/expert_system tests/AND_conclusion
+((Actuall_line++))
 
 echo "----- Second Test (=C with ?ABCDE, excepted result here) ----"
-do_comment Start_line End_line
-do_uncomment Actuall_line
-Actuall_line++
+do_comment tests/AND_conclusion $Start_line $End_line
+do_uncomment tests/AND_conclusion $Actuall_line
+((Actuall_line++))
