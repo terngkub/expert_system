@@ -1,8 +1,10 @@
 #include "options.hpp"
-#include "system.hpp"
+#include "expert_system.hpp"
 #include <iostream>
 #include <regex>
 #include <string>
+
+// Constructor
 
 expert_system::expert_system(std::string & filename)
 	: facts{}
@@ -10,6 +12,9 @@ expert_system::expert_system(std::string & filename)
 	, queries{}
 	, parser_{*this, filename}
 {}
+
+
+// Function Object
 
 void expert_system::operator()()
 {
@@ -20,6 +25,9 @@ void expert_system::operator()()
 		run();
 }
 
+
+// Internal
+
 void expert_system::run()
 {
 	for (auto const c : queries)
@@ -29,34 +37,6 @@ void expert_system::run()
 		debug_print();
 	else
 		print();
-}
-
-void expert_system::print()
-{
-	for (auto c : queries)
-	{
-		std::cout << c << ": " << facts[c]->value << '\n';
-	}
-}
-
-void expert_system::debug_print()
-{
-	std::cout << "Facts:\n";
-
-	for (auto const & f : facts)
-	{
-		std::cout << f.first << ": " << f.second->value << '\n';
-	}
-
-	std::cout << "\nRules:\n";
-
-	for (auto r : rules)
-	{
-		if (r->operation == rule_operation::NOT)
-			std::cout << "rule " << r->name << ": !" << r->get_name(r->left) << " (" << r->value << ")\n";
-		else
-			std::cout << "rule " << r->name << ": " << r->get_name(r->left) << ' ' << r->operation << ' ' << r->get_name(r->right) << " (" << r->value << ")\n";
-	}
 }
 
 void expert_system::query(std::shared_ptr<fact> f)
@@ -103,6 +83,40 @@ void expert_system::query(std::shared_ptr<fact> f)
 			std::cout << "All rules that link to fact " << f->name << " is already visited\n\n";
 	}
 }
+
+void expert_system::print()
+{
+	for (auto c : queries)
+	{
+		std::cout << c << ": " << facts[c]->value << '\n';
+	}
+}
+
+
+// Debug
+
+void expert_system::debug_print()
+{
+	std::cout << "Facts:\n";
+
+	for (auto const & f : facts)
+	{
+		std::cout << f.first << ": " << f.second->value << '\n';
+	}
+
+	std::cout << "\nRules:\n";
+
+	for (auto r : rules)
+	{
+		if (r->operation == rule_operation::NOT)
+			std::cout << "rule " << r->name << ": !" << r->get_name(r->left) << " (" << r->value << ")\n";
+		else
+			std::cout << "rule " << r->name << ": " << r->get_name(r->left) << ' ' << r->operation << ' ' << r->get_name(r->right) << " (" << r->value << ")\n";
+	}
+}
+
+
+// Interactive
 
 void expert_system::interactive_loop()
 {

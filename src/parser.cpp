@@ -1,7 +1,9 @@
 #include "grammar.hpp"
 #include "parser.hpp"
-#include "system.hpp"
+#include "expert_system.hpp"
 #include <regex>
+
+// Constructor and Destructors
 
 parser::parser(expert_system & es, std::string & filename)
 	: es{es}
@@ -17,6 +19,67 @@ parser::~parser()
 {
 	ifs.close();
 }
+
+
+// Function Objects
+
+rule_node parser::operator()(ast::rule & r)
+{
+	auto left = (*this)(r.left);
+	auto right = (*this)(r.right);
+
+	return create_new_rule(rule_operation::IMPLY, left, right);
+}
+
+rule_node parser::operator()(ast::expr & expr)
+{
+	auto left = (*this)(expr.first);
+
+	for (auto & opt : expr.rest)
+	{
+		auto right = (*this)(opt.operand_);
+
+		rule_operation operation_value;
+		switch (opt.operator_)
+		{
+			case '+': operation_value = rule_operation::AND; break;
+			case '|': operation_value = rule_operation::OR; break;
+			default: operation_value = rule_operation::XOR;
+		}
+
+		left = create_new_rule(operation_value, left, right);
+	}
+	return left;
+}
+
+rule_node parser::operator()(ast::operand & operand)
+{
+	return boost::apply_visitor(*this, operand);
+}
+
+rule_node parser::operator()(ast::signed_ & signed_)
+{
+	auto left = (*this)(signed_.operand_);
+
+	if (signed_.sign != '!')
+		return left;
+
+	auto right = std::make_shared<fact>();
+
+	return create_new_rule(rule_operation::NOT, left, right);
+}
+
+rule_node parser::operator()(char c)
+{
+	if (es.facts.find(c) == es.facts.end())
+	{
+		es.facts[c] = std::make_shared<fact>(c);
+	}
+	return es.facts[c];
+}
+
+
+// Parse File
 
 void parser::parse()
 {
@@ -73,25 +136,8 @@ void parser::parse()
 		throw std::runtime_error("there is no query in the input");
 }
 
-bool parser::parse_rules(std::string const & str)
-{
-	auto it = str.begin();
-	auto end = str.end();
-	ast::rule result;
 
-	bool r = phrase_parse(it, end, grammar::input, boost::spirit::x3::ascii::space, result);
-
-	if (r)
-	{
-		if (it != end)
-			throw std::runtime_error("invalid rule");
-
-		(*this)(result);
-		return true;
-	}
-
-	return false;
-}
+// Parse String
 
 void parser::parse_initial_facts(std::string const & str)
 {
@@ -121,27 +167,8 @@ void parser::parse_query(std::string const & str)
 	set_queries(result);
 }
 
-void parser::set_initial_facts(std::vector<char> & result)
-{
-	for (auto const c : result)
-	{
-		if (es.facts.find(c) == es.facts.end())
-			throw std::runtime_error("there is no facts in the graph for this initial facts");
-		es.facts[c]->value = fact_value::TRUE;
-	}
-}
 
-void parser::set_queries(std::vector<char> & result)
-{
-	for (auto const c : result)
-	{
-		if (es.facts.find(c) == es.facts.end())
-			throw std::runtime_error("there is no facts in the graph for this query");
-		if (std::find(es.queries.begin(), es.queries.end(), c) != es.queries.end())
-			continue;
-		es.queries.push_back(c);
-	}
-}
+// Line
 
 bool parser::is_empty(std::string const & str)
 {
@@ -157,6 +184,40 @@ bool parser::is_comment(std::string const & str)
 	std::smatch matches;
 	std::regex pattern{"^\\s*#.*$"};
 	return std::regex_search(str, matches, pattern);
+}
+
+
+// Rules
+
+bool parser::parse_rules(std::string const & str)
+{
+	auto it = str.begin();
+	auto end = str.end();
+	ast::rule result;
+
+	bool r = phrase_parse(it, end, grammar::input, boost::spirit::x3::ascii::space, result);
+
+	if (r)
+	{
+		if (it != end)
+			throw std::runtime_error("invalid rule");
+
+		(*this)(result);
+		return true;
+	}
+
+	return false;
+}
+
+std::shared_ptr<rule> parser::create_new_rule(rule_operation operation_value, rule_node left, rule_node right)
+{
+	auto new_rule = std::make_shared<rule>(++rule_nb, operation_value, left, right);
+	es.rules.push_back(new_rule);
+
+	link_rule(left, new_rule);
+	link_rule(right, new_rule);
+
+	return new_rule;
 }
 
 void parser::link_rule(rule_node node, std::shared_ptr<rule> new_rule)
@@ -179,68 +240,27 @@ void parser::link_rule(rule_node node, std::shared_ptr<rule> new_rule)
 	node);
 }
 
-std::shared_ptr<rule> parser::create_new_rule(rule_operation operation_value, rule_node left, rule_node right)
+
+// Parse Initial Facts and Queries
+
+void parser::set_initial_facts(std::vector<char> & result)
 {
-	auto new_rule = std::make_shared<rule>(++rule_nb, operation_value, left, right);
-	es.rules.push_back(new_rule);
-
-	link_rule(left, new_rule);
-	link_rule(right, new_rule);
-
-	return new_rule;
-}
-
-rule_node parser::operator()(char c)
-{
-	if (es.facts.find(c) == es.facts.end())
+	for (auto const c : result)
 	{
-		es.facts[c] = std::make_shared<fact>(c);
+		if (es.facts.find(c) == es.facts.end())
+			throw std::runtime_error("there is no facts in the graph for this initial facts");
+		es.facts[c]->value = fact_value::TRUE;
 	}
-	return es.facts[c];
 }
 
-rule_node parser::operator()(ast::operand & operand)
+void parser::set_queries(std::vector<char> & result)
 {
-	return boost::apply_visitor(*this, operand);
-}
-
-rule_node parser::operator()(ast::signed_ & signed_)
-{
-	auto left = (*this)(signed_.operand_);
-
-	if (signed_.sign != '!')
-		return left;
-
-	auto right = std::make_shared<fact>();
-
-	return create_new_rule(rule_operation::NOT, left, right);
-}
-
-rule_node parser::operator()(ast::expr & expr)
-{
-	auto left = (*this)(expr.first);
-
-	for (auto & opt : expr.rest)
+	for (auto const c : result)
 	{
-		auto right = (*this)(opt.operand_);
-
-		rule_operation operation_value;
-		switch (opt.operator_)
-		{
-			case '+': operation_value = rule_operation::AND; break;
-			case '|': operation_value = rule_operation::OR; break;
-			default: operation_value = rule_operation::XOR;
-		}
-
-		left = create_new_rule(operation_value, left, right);
+		if (es.facts.find(c) == es.facts.end())
+			throw std::runtime_error("there is no facts in the graph for this query");
+		if (std::find(es.queries.begin(), es.queries.end(), c) != es.queries.end())
+			continue;
+		es.queries.push_back(c);
 	}
-	return left;
-}
-
-rule_node parser::operator()(ast::rule & r)
-{
-	auto left = (*this)(r.left);
-	auto right = (*this)(r.right);
-
-	return create_new_rule(rule_operation::IMPLY, left, right);
 }

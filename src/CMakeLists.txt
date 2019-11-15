@@ -4,6 +4,8 @@ if (Boost_FOUND)
     include_directories((${Boost_INCLUDE_DIRS}))
 	add_executable(expert_system
 		ast.hpp
+		expert_system.cpp
+		expert_system.hpp
 		fact.cpp
 		fact.hpp
 		grammar.hpp
@@ -14,8 +16,6 @@ if (Boost_FOUND)
 		parser.hpp
 		rule.cpp
 		rule.hpp
-		system.cpp
-		system.hpp
 	)
     target_link_libraries(expert_system ${Boost_LIBRARIES})
 endif()
