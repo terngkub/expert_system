@@ -176,7 +176,7 @@ bool parser::is_empty(std::string const & str)
 	if (str.empty())
 		return true;
 	std::smatch matches;
-	std::regex pattern{"^\\s.*$"};
+	std::regex pattern{"^\\s*$"};
 	return std::regex_search(str, matches, pattern);
 }
 
