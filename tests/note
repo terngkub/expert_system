@@ -1,0 +1,71 @@
+# Parsing
+Check for error in input
+
+## grammar
+* rule/ini/query contain something else than state in grammar
+
+## fact
+* invalid fact (use other things than uppercase letter)
+    ```
+    A => b
+    65 => B
+    ```
+* two facts together without operator
+    ```
+    AB => C
+    ```
+
+## operator
+* double operator
+* NOT op NOT
+
+## space
+* no/one/multiple space/tab before/after/between
+    ```
+       A  +! B => C  
+    ```
+
+## comment
+* comment at the start of line
+* space before comment
+* comment at the end of line
+* double comment sign
+* comment within comment
+
+## input
+* no rule
+* no ini facts
+* no query
+* no rule + no ini
+* no rule + no query
+* no ini + no query
+* empty file
+* file with only newlines
+* file with only space/newline/comment
+* swap rule/ini/query
+
+
+# AST
+Check to see if parser store things in AST correctly
+
+## parenthesis
+
+## NOT
+* multiple NOT
+* NOT with parenthesis
+
+## operator priority
+
+
+
+# Evaluation
+Check to see if the program evaluate correctly
+
+## ini/query
+* no fact in rules but have in ini/query
+* ini/query has duplicate fact
+* 
+
+## one operation
+
+## multiple operation
