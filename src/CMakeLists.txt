@@ -16,6 +16,8 @@ if (Boost_FOUND)
 		parser.hpp
 		rule.cpp
 		rule.hpp
+		utils.cpp
+		utils.hpp
 	)
     target_link_libraries(expert_system ${Boost_LIBRARIES})
 endif()

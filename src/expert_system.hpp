@@ -15,16 +15,16 @@ public:
     std::vector<std::shared_ptr<rule>> rules;
     std::vector<char> queries;
 
-    // Constructor and Destructor
+    // Constructors and Destructor
     expert_system() = delete;
     expert_system(std::string & filename);
     ~expert_system() = default;
 
-    // Copy - disable
+    // Copy - Disable
     expert_system(expert_system const &) = delete;
     expert_system & operator=(expert_system const &) = delete;
 
-    // Move - disable
+    // Move - Disable
     expert_system(expert_system &&) = delete;
     expert_system & operator=(expert_system &&) = delete;
 

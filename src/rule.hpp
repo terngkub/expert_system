@@ -3,8 +3,8 @@
 #include <iostream>
 #include <variant>
 
-const std::string hr{"------------------------------"};
 
+// Rule Operation Enum
 enum rule_operation
 {
     NOT,
@@ -13,19 +13,19 @@ enum rule_operation
     XOR,
     IMPLY
 };
-
 std::ostream & operator<<(std::ostream & os, rule_operation const & rhs);
 
 
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-
+// Rule Node
 struct rule;
-
 using rule_node = std::variant<std::shared_ptr<fact>, std::shared_ptr<rule>>;
 
-struct rule
+
+// Rule
+class rule
 {
+public:
+    // Public Attributes
     int name;
     rule_operation operation;
     rule_node left;
@@ -33,6 +33,10 @@ struct rule
     std::shared_ptr<rule> parent;
     fact_value value;
     bool visited;
+
+    // Constructor and Destructor
+    rule() = delete;
+    ~rule() = default;
 
     template<class L, class R>
     rule(int name, rule_operation operation, L left, R right)
@@ -45,15 +49,24 @@ struct rule
         , visited{false}
     {}
 
-    fact_value * get_fact_value(rule_node node, int i);
+    // Copy - Enable
+    rule(rule const &) = default;
+    rule & operator=(rule const &) = default;
 
+    // Move - Enable
+    rule(rule &&) = default;
+    rule & operator=(rule &&) = default;
+
+    // Public Methods
     void evaluate(int i);
-    void operation_not(fact_value * initial_value, fact_value * r_value, int i);
-    void operation_and(fact_value * l_value, fact_value * r_value, int i);
-    void operation_or(fact_value * l_value, fact_value * r_value, int i);
-    void operation_xor(fact_value * l_value, fact_value * r_value, int i);
-    void operation_imply(fact_value * l_value, fact_value * r_value, int i);
-    void to_true(rule_node node, int i);
-
     std::string get_name(rule_node node);
+
+private:
+    fact_value get_fact_value(rule_node node, int i);
+    void operation_not(fact_value l_value, int i);
+    void operation_and(fact_value l_value, fact_value r_value, int i);
+    void operation_or(fact_value l_value, fact_value r_value, int i);
+    void operation_xor(fact_value l_value, fact_value r_value, int i);
+    void operation_imply(fact_value l_value, fact_value r_value, int i);
+    void to_true(rule_node node, int i);
 };

@@ -8,16 +8,16 @@ struct expert_system;
 class parser
 {
 public:
-    // Constructor and Destructor
+    // Constructors and Destructor
     parser() = delete;
     parser(expert_system & es, std::string & filename);
     ~parser();
 
-    // Copy - disable
+    // Copy - Disable
     parser(parser const &) = delete;
     parser & operator=(parser const &) = delete;
 
-    // Move - disable
+    // Move - Disable
     parser(parser &&) = delete;
     parser & operator=(parser &&) = delete;
 

@@ -1,5 +1,6 @@
 #include "options.hpp"
 #include "expert_system.hpp"
+#include "utils.hpp"
 #include <iostream>
 #include <regex>
 #include <string>

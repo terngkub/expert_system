@@ -1,6 +1,9 @@
 #include "options.hpp"
+#include "utils.hpp"
 #include "rule.hpp"
 #include <variant>
+
+// Rule Operation Enum
 
 std::ostream & operator<<(std::ostream & os, rule_operation const & rhs)
 {
@@ -15,15 +18,81 @@ std::ostream & operator<<(std::ostream & os, rule_operation const & rhs)
 	return os;
 }
 
-std::string indent(int i)
+
+// Public Methods
+
+void rule::evaluate(int i)
 {
-	std::string str{};
-	for (auto j = 0; j < i; ++j)
-		str += "    ";
-	return str;
+	if (visited) return;
+	visited = true;
+
+	if (options::vm.count("visualisation"))
+	{
+		std::cout << indent(i) << hr << "\n";
+		std::cout << indent(i) << "Trace back to rule " << name << "\n";
+		if (operation == rule_operation::NOT)
+			std::cout << indent(i) << "Desc   : !" << get_name(left) << "\n";
+		else
+			std::cout << indent(i) << "Desc   : " << get_name(left) << ' ' << operation << ' ' << get_name(right) << "\n";
+
+		std::string parent_str = (parent != nullptr) ? "rule " + std::to_string(parent->name) : "None";
+		std::cout << indent(i) << "Parent : " << parent_str << "\n\n";
+	}
+
+	auto l_value = get_fact_value(left, i + 1);
+	auto r_value = (operation == rule_operation::NOT) ? fact_value::FALSE : get_fact_value(right, i + 1);
+
+	if (options::vm.count("visualisation"))
+		std::cout << indent(i + 1) << hr << "\n\n";
+	
+	switch(operation)
+	{
+		case rule_operation::NOT: operation_not(l_value, i); break; 
+		case rule_operation::AND: operation_and(l_value, r_value, i); break;
+		case rule_operation::OR: operation_or(l_value, r_value, i); break;
+		case rule_operation::XOR: operation_xor(l_value, r_value, i); break;
+		default: operation_imply(l_value, r_value, i);
+	}
+
+	if (parent != nullptr && !parent->visited)
+	{
+		if (options::vm.count("visualisation"))
+		{
+			std::cout << indent(i) << "Value : " << value << "\n\n";
+			std::cout << indent(i) << "Trace back to parent\n\n";
+		}
+
+		parent->evaluate(i + 1);
+
+		if (options::vm.count("visualisation"))
+			std::cout << indent(i + 1) << hr << "\n\n";
+	}
+
+	if (options::vm.count("visualisation"))
+		std::cout << indent(i) << "Value : " << value << '\n';
 }
 
-fact_value * rule::get_fact_value(rule_node node, int i)
+std::string rule::get_name(rule_node node)
+{
+	return std::visit(overloaded
+		{
+			[](std::shared_ptr<fact> f)
+			{
+				std::string name{f->name};
+				return name;
+			},
+			[](std::shared_ptr<rule> r)
+			{
+				return "rule " + std::to_string(r->name);
+			}
+		},
+		node);
+}
+
+
+// Private Methods
+
+fact_value rule::get_fact_value(rule_node node, int i)
 {
 	return std::visit(overloaded
 		{
@@ -74,138 +143,69 @@ fact_value * rule::get_fact_value(rule_node node, int i)
 				if (options::vm.count("visualisation"))
 					std::cout << indent(i) << "Value : " << f->value << '\n';
 
-				return &(f->value);
+				return f->value;
 			},
 
 			[i](std::shared_ptr<rule> r)
 			{
 				r->evaluate(i); 
-				return &(r->value);
+				return r->value;
 			}
 		},
 		node);
 }
 
-std::string rule::get_name(rule_node node)
+void rule::operation_not(fact_value l_value, int i)
 {
-	return std::visit(overloaded
-		{
-			[](std::shared_ptr<fact> f)
-			{
-				std::string name{f->name};
-				return name;
-			},
-			[](std::shared_ptr<rule> r)
-			{
-				return "rule " + std::to_string(r->name);
-			}
-		},
-		node);
-}
-
-void rule::evaluate(int i)
-{
-	if (visited) return;
-	visited = true;
-
-	if (options::vm.count("visualisation"))
-	{
-		std::cout << indent(i) << hr << "\n";
-		std::cout << indent(i) << "Trace back to rule " << name << "\n";
-		if (operation == rule_operation::NOT)
-			std::cout << indent(i) << "Desc   : !" << get_name(left) << "\n";
-		else
-			std::cout << indent(i) << "Desc   : " << get_name(left) << ' ' << operation << ' ' << get_name(right) << "\n";
-
-		std::string parent_str = (parent != nullptr) ? "rule " + std::to_string(parent->name) : "None";
-		std::cout << indent(i) << "Parent : " << parent_str << "\n\n";
-	}
-
-	auto l_value = get_fact_value(left, i + 1);
-	auto r_value = (operation == rule_operation::NOT) ? nullptr : get_fact_value(right, i + 1);
-
-	if (options::vm.count("visualisation"))
-		std::cout << indent(i + 1) << hr << "\n\n";
-	
-	switch(operation)
-	{
-		case rule_operation::AND: operation_and(l_value, r_value, i); break;
-		case rule_operation::OR: operation_or(l_value, r_value, i); break;
-		case rule_operation::XOR: operation_xor(l_value, r_value, i); break;
-		case rule_operation::NOT: operation_not(l_value, r_value, i); break; 
-		default: operation_imply(l_value, r_value, i);
-	}
-
-	if (parent != nullptr && !parent->visited)
-	{
-		if (options::vm.count("visualisation"))
-		{
-			std::cout << indent(i) << "Value : " << value << "\n\n";
-			std::cout << indent(i) << "Trace back to parent\n\n";
-		}
-
-		parent->evaluate(i + 1);
-
-		if (options::vm.count("visualisation"))
-			std::cout << indent(i + 1) << hr << "\n\n";
-	}
-
-	if (options::vm.count("visualisation"))
-		std::cout << indent(i) << "Value : " << value << '\n';
-}
-
-void rule::operation_not(fact_value * l_value, fact_value * r_value, int i)
-{
-	if (*l_value == fact_value::TRUE)
+	if (l_value == fact_value::TRUE)
 		value = fact_value::FALSE;
 	else
 		value = fact_value::TRUE;
 
 	if (options::vm.count("visualisation"))
-		std::cout << indent(i) << "Reasoning : !" << *l_value << " == " << value << "\n";
+		std::cout << indent(i) << "Reasoning : !" << l_value << " == " << value << "\n";
 }
 
-void rule::operation_and(fact_value * l_value, fact_value * r_value, int i)
+void rule::operation_and(fact_value l_value, fact_value r_value, int i)
 {
-	if (*l_value == fact_value::TRUE && *r_value == fact_value::TRUE)
+	if (l_value == fact_value::TRUE && r_value == fact_value::TRUE)
 		value = fact_value::TRUE;
 	else
 		value = fact_value::FALSE;
 
 	if (options::vm.count("visualisation"))
-		std::cout << indent(i) << "Reasoning : " << *l_value << " + " << *r_value << " == " << value << "\n";
+		std::cout << indent(i) << "Reasoning : " << l_value << " + " << r_value << " == " << value << "\n";
 }
 
-void rule::operation_or(fact_value * l_value, fact_value * r_value, int i)
+void rule::operation_or(fact_value l_value, fact_value r_value, int i)
 {
-	if (*l_value == fact_value::TRUE || *r_value == fact_value::TRUE)
+	if (l_value == fact_value::TRUE || r_value == fact_value::TRUE)
 		value = fact_value::TRUE;
 	else
 		value = fact_value::FALSE;
 
 	if (options::vm.count("visualisation"))
-		std::cout << indent(i) << "Reasoning : " << *l_value << " | " << *r_value << " == " << value << "\n";
+		std::cout << indent(i) << "Reasoning : " << l_value << " | " << r_value << " == " << value << "\n";
 }
 
-void rule::operation_xor(fact_value * l_value, fact_value * r_value, int i)
+void rule::operation_xor(fact_value l_value, fact_value r_value, int i)
 {
-	if ( ( *l_value == fact_value::TRUE && *r_value == fact_value::FALSE ) 
-	||  ( *l_value == fact_value::FALSE && *r_value == fact_value::TRUE)  )
+	if (l_value != r_value)
 		value = fact_value::TRUE;
 	else
 		value = fact_value::FALSE;
 
 	if (options::vm.count("visualisation"))
-		std::cout << indent(i) << "Reasoning : " << *l_value << " ^ " << *r_value << " == " << value << "\n";
+		std::cout << indent(i) << "Reasoning : " << l_value << " ^ " << r_value << " == " << value << "\n";
 }
 
-void rule::operation_imply(fact_value * l_value, fact_value * r_value, int i)
+void rule::operation_imply(fact_value l_value, fact_value r_value, int i)
 {
 	if (options::vm.count("visualisation"))
-	std::cout << indent(i) << "Reasoning : " << *l_value << " => " << *r_value << "\n";
+	std::cout << indent(i) << "Reasoning : " << l_value << " => " << r_value << "\n";
 
 	value = fact_value::TRUE;
-	if (*l_value == fact_value::TRUE && *r_value == fact_value::FALSE)
+	if (l_value == fact_value::TRUE && r_value == fact_value::FALSE)
 	{
 		if (options::vm.count("visualisation"))
 			std::cout << indent(i) << get_name(right) << " has to be TRUE\n\n";
@@ -253,4 +253,3 @@ void rule::to_true(rule_node node, int i)
 	},
 	node);
 }
-

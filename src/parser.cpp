@@ -1,9 +1,10 @@
 #include "grammar.hpp"
 #include "parser.hpp"
+#include "utils.hpp"
 #include "expert_system.hpp"
 #include <regex>
 
-// Constructor and Destructors
+// Constructors and Destructor
 
 parser::parser(expert_system & es, std::string & filename)
 	: es{es}
