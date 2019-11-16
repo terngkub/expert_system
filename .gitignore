@@ -3,4 +3,4 @@ bin
 .DS_Store
 *.swp
 .vscode
-.bak
+*.bak
