@@ -208,7 +208,7 @@ void rule::operation_imply(fact_value l_value, fact_value r_value, int i)
 	if (l_value == fact_value::TRUE && r_value == fact_value::FALSE)
 	{
 		if (options::vm.count("visualisation"))
-			std::cout << indent(i) << get_name(right) << " has to be TRUE\n\n";
+			std::cout << indent(i) << get_name(right) << " has to be " << fact_value::TRUE << "\n\n";
 
 		to_true(right, i + 1);
 
@@ -226,7 +226,7 @@ void rule::to_true(rule_node node, int i)
 			if (options::vm.count("visualisation"))
 			{
 				std::cout << indent(i) << hr << "\n";
-				std::cout << indent(i) << "Changing fact " << f->name << " to TRUE\n";
+				std::cout << indent(i) << "Changing fact " << f->name << " to " << fact_value::TRUE << "\n";
 			}
 
 			f->value = fact_value::TRUE;
@@ -236,7 +236,8 @@ void rule::to_true(rule_node node, int i)
 			if (options::vm.count("visualisation"))
 			{
 				std::cout << indent(i) << hr << "\n";
-				std::cout << indent(i) << "Changing rule " << name << " value to TRUE\n";
+				std::cout << indent(i) << "Changing rule " << name << " value to " << fact_value::TRUE << 
+			"\n";
 				std::cout << indent(i) << "Desc   : " << get_name(left) << ' ' << operation << ' ' << get_name(right) << "\n\n";
 			}
 
