@@ -16,10 +16,10 @@ do_comment()
     End=$3
     while (( $Start <= $End ))
     do
-        if ! [ $(get_char $1 $2) == "#" ]
+        if ! [ $(get_char $1 $Start) == "#" ]
         then
-            to_replace=$(get_char $1 $2)
-            sed -e "s/^$to_replace/#/" $1
+            to_replace=$(get_char $1 $Start)
+            sed -i.bak "${Start}s/.*/#&/" $1
         fi
         ((Start++))
     done
@@ -29,6 +29,7 @@ do_uncomment()
 {
     if [ $(get_char $1 $2) == "#" ]
     then
-        get_line $1 $2 | sed -r 's/^.{1}//'
+        to_replace=$(get_char $1 $2)
+        sed -i.bak "$2s/^$to_replace//" $1 
     fi
 }

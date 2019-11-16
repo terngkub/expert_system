@@ -1,10 +1,10 @@
 B + C => A
-D ^ E => B
+D | E => B
 B => C
 
-#= # A should be false
+#= #A Should be false
 #=D # A should be true
 #=E # A should be true
-=DE # A should be false
+#=DE # A should be true
 
 ?A

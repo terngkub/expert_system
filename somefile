@@ -1,8 +1,0 @@
-A => B + C
-B + C => D
-D + A => E + B
-
-=A #  expected result here
-#=C # expected result here
-
-?ABCDE
