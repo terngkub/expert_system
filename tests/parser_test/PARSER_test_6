@@ -1,0 +1,10 @@
+# bad Rule Format
+
+=> B
+A =>
+
+CCCCC => DDDDD
+
+=A
+
+?A

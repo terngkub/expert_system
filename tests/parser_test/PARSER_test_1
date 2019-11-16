@@ -1,0 +1,7 @@
+# no intial fact
+
+A => B
+A => C
+
+
+?B

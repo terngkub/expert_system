@@ -1,0 +1,5 @@
+# bad rules (No Caps on facts)
+
+a => b
+a => c
+aa => cc
