@@ -132,8 +132,8 @@ void expert_system::interactive_loop()
 	{
 		run();
 		interactive_reset();
-		interactive_initial_facts();
-		interactive_query();
+		while (!interactive_initial_facts()) ;
+		while (!interactive_query()) ;
 	}
 }
 
@@ -168,13 +168,14 @@ void expert_system::interactive_exit(std::string str)
 	}
 }
 
-void expert_system::interactive_initial_facts()
+bool expert_system::interactive_initial_facts()
 {
 	try
 	{
 		std::cout << "Enter initial facts: ";
 		std::string str{};
 		getline(std::cin, str);
+		handle_eof();
 		interactive_exit(str);
 		str = '=' + str;
 		parser_.parse_initial_facts(str);
@@ -183,17 +184,19 @@ void expert_system::interactive_initial_facts()
 	catch (std::exception & e)
 	{
 		std::cerr << "error: " << e.what() << "\n\n";
-		interactive_initial_facts();
+		return false;
 	}
+	return true;
 }
 
-void expert_system::interactive_query()
+bool expert_system::interactive_query()
 {
 	try
 	{
 		std::cout << "Enter query: ";
 		std::string str{};
 		getline(std::cin, str);
+		handle_eof();
 		interactive_exit(str);
 		str = '?' + str;
 		parser_.parse_query(str);
@@ -202,6 +205,7 @@ void expert_system::interactive_query()
 	catch (std::exception & e)
 	{
 		std::cerr << "error: " << e.what() << "\n\n";
-		interactive_query();
+		return false;
 	}
+	return true;
 }

@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 
+// Reading
+void handle_eof();
+
 // Printing
 const std::string hr{"------------------------------"};
 std::string indent(int i);

@@ -47,6 +47,6 @@ private:
     void interactive_loop();
     void interactive_reset();
     void interactive_exit(std::string str);
-    void interactive_initial_facts();
-    void interactive_query();
+    bool interactive_initial_facts();
+    bool interactive_query();
 };
