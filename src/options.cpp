@@ -10,10 +10,10 @@ boost::program_options::variables_map options::vm;
 void options::get_options(int argc, char ** argv)
 {
     visible.add_options()
-        ("help", "show help message")
+        ("help,h", "show help message")
         ("interactive,i", "interactive mode, user can change initial facts and query without having to rerun the program")
         ("visualisation,v", "reasoning visualisation mode, display step-by-step backward chaining reasoning process")
-        ("debug,d", "debug mode, display all the values after evaluation")
+        ("debug,d", "debug mode, display all values after evaluation")
         ("color,c", "color mode, display with color")
     ;
     hidden.add_options()
