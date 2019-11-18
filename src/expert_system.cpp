@@ -8,7 +8,8 @@
 // Constructor
 
 expert_system::expert_system(std::string & filename)
-	: facts{}
+	: initial_facts{}
+	, facts{}
 	, rules{}
 	, queries{}
 	, parser_{*this, filename}
@@ -20,7 +21,7 @@ expert_system::expert_system(std::string & filename)
 void expert_system::operator()()
 {
 	parser_.parse();
-	if (options::vm.count("interactive"))
+	if (options::vm.count("facts") || options::vm.count("query"))
 		interactive_loop();
 	else
 		run();
@@ -40,15 +41,14 @@ void expert_system::run()
 		print();
 }
 
+
 void expert_system::query(std::shared_ptr<fact> f)
 {
-	if (options::vm.count("visualisation"))
-		std::cout << "Query fact " << f->name << "\n";
+	vp_query_begin(f);
 
 	f->visited = true;
 
 	std::vector<std::shared_ptr<rule>> rules{};
-
 	for (auto r : f->rules)
 	{
 		if (!r->visited)
@@ -57,31 +57,14 @@ void expert_system::query(std::shared_ptr<fact> f)
 
 	if (rules.size() > 0)
 	{
-		if (options::vm.count("visualisation"))
-		{
-			std::cout << "Linked rules:\n";
-			for (auto r : rules)
-			{
-				if (r->operation == rule_operation::NOT)
-					std::cout << "rule " << r->name << ": !" << r->get_name(r->left) << "\n";
-				else
-					std::cout << "rule " << r->name << ": " << r->get_name(r->left) << ' ' << r->operation << ' ' << r->get_name(r->right) << "\n";
-			}
-			std::cout << '\n';
-		}
-
+		vp_query_evaluate_begin(rules);
 		for (auto r : rules)
-		{
 			r->evaluate(1);
-		}
-
-		if (options::vm.count("visualisation"))
-			std::cout << "    " << hr << "\n\n";
+		vp_query_evaluate_end();
 	}
 	else
 	{
-		if (options::vm.count("visualisation"))
-			std::cout << "All rules that link to fact " << f->name << " is already visited\n\n";
+		vp_no_evaluation(f);
 	}
 }
 
@@ -132,8 +115,10 @@ void expert_system::interactive_loop()
 	{
 		run();
 		interactive_reset();
-		while (!interactive_initial_facts()) ;
-		while (!interactive_query()) ;
+		if (options::vm.count("facts"))
+			while (!interactive_initial_facts()) ;
+		if (options::vm.count("query"))
+			while (!interactive_query()) ;
 	}
 }
 
@@ -145,13 +130,19 @@ void expert_system::interactive_reset()
 		f.second->visited = false;
 	}
 
+	if (options::vm.count("facts"))
+		initial_facts = std::vector<char>{};
+	else
+		parser_.set_initial_facts(initial_facts);
+
 	for (auto & r : rules)
 	{
 		r->value = fact_value::FALSE;
 		r->visited = false;
 	}
 
-	queries = std::vector<char>{};
+	if (options::vm.count("query"))
+		queries = std::vector<char>{};
 
 	std::cout
 		<< "\n------------------------------------------------\n\n"
@@ -208,4 +199,41 @@ bool expert_system::interactive_query()
 		return false;
 	}
 	return true;
+}
+
+
+// Visualisation
+
+void expert_system::vp_query_begin(std::shared_ptr<fact> const & f)
+{
+	if (options::vm.count("visualisation"))
+		std::cout << "Query fact " << f->name << "\n";
+}
+
+void expert_system::vp_query_evaluate_begin(std::vector<std::shared_ptr<rule>> const & rules)
+{
+	if (options::vm.count("visualisation"))
+	{
+		std::cout << "Linked rules:\n";
+		for (auto r : rules)
+		{
+			if (r->operation == rule_operation::NOT)
+				std::cout << "rule " << r->name << ": !" << r->get_name(r->left) << "\n";
+			else
+				std::cout << "rule " << r->name << ": " << r->get_name(r->left) << ' ' << r->operation << ' ' << r->get_name(r->right) << "\n";
+		}
+		std::cout << '\n';
+	}
+}
+
+void expert_system::vp_query_evaluate_end()
+{
+	if (options::vm.count("visualisation"))
+		std::cout << "    " << hr << "\n\n";
+}
+
+void expert_system::vp_no_evaluation(std::shared_ptr<fact> const & f)
+{
+	if (options::vm.count("visualisation"))
+		std::cout << "All rules that link to fact " << f->name << " is already visited\n\n";
 }

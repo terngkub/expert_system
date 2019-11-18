@@ -144,14 +144,13 @@ void parser::parse_initial_facts(std::string const & str)
 {
 	auto it = str.begin();
 	auto end = str.end();
-	std::vector<char> result;
 
-	bool r = phrase_parse(it, end, grammar::initial_facts, boost::spirit::x3::space, result);
+	bool r = phrase_parse(it, end, grammar::initial_facts, boost::spirit::x3::space, es.initial_facts);
 
 	if (!r || it != end)
 		throw std::runtime_error("invalid initial facts");
 
-	set_initial_facts(result);
+	set_initial_facts(es.initial_facts);
 }
 
 void parser::parse_query(std::string const & str)

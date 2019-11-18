@@ -64,7 +64,10 @@ public:
     std::string get_name(rule_node node);
 
 private:
+    // Public Methods
     fact_value get_fact_value(rule_node node, int i);
+
+    // Operations
     void operation_not(fact_value l_value, int i);
     void operation_and(fact_value l_value, fact_value r_value, int i);
     void operation_or(fact_value l_value, fact_value r_value, int i);
@@ -72,7 +75,7 @@ private:
     void operation_imply(fact_value l_value, fact_value r_value, int i);
     void to_true(rule_node node, int i);
 
-    // Print Visualisation
+    // Visualisation
     void pv_getfactvalue_begin(int i, std::shared_ptr<fact> const & f);
     void pv_getfactvalue_evaluate_begin(int i, std::vector<std::shared_ptr<rule>> const & rules);
     void pv_getfactvalue_evaluate_end(int i, std::vector<std::shared_ptr<rule>> const & rules);
@@ -96,5 +99,4 @@ private:
     void pv_totrue_fact(int i, std::shared_ptr<fact> const & fact);
     void pv_totrue_rule_begin(int i);
     void pv_totrue_rule_end(int i);
-
 };

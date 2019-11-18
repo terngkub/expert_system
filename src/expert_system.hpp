@@ -11,6 +11,7 @@ class expert_system
 {
 public:
     // Public Attributes
+    std::vector<char> initial_facts;
     std::map<char, std::shared_ptr<fact>> facts;
     std::vector<std::shared_ptr<rule>> rules;
     std::vector<char> queries;
@@ -49,4 +50,10 @@ private:
     void interactive_exit(std::string str);
     bool interactive_initial_facts();
     bool interactive_query();
+
+    // Visualisation
+    void vp_query_begin(std::shared_ptr<fact> const & f);
+    void vp_query_evaluate_begin(std::vector<std::shared_ptr<rule>> const & rules);
+    void vp_no_evaluation(std::shared_ptr<fact> const & f);
+    void vp_query_evaluate_end();
 };
