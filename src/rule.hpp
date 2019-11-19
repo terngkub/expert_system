@@ -75,6 +75,7 @@ private:
     void operation_imply(fact_value l_value, fact_value r_value, int i);
     void to_true(rule_node node, int i);
     void to_true_parent(int i);
+    fact_value to_true_get_fact_value(rule_node const & node, int i);
 
     // Visualisation
     void pv_getfactvalue_begin(int i, std::shared_ptr<fact> const & f);

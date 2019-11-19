@@ -1,0 +1,100 @@
+List of facts:
+A, B, C, D
+
+List of rules:
+Rule 1: A + B
+Rule 2: C + D
+Rule 3: rule1 => rule3
+
+---------------------------
+Query fact C
+Rules link to fact C:
+rule2: C + D
+
+    ---------------------------
+    Trace back to rule 2
+    Desc   : C + D
+    Parent : rule 3
+
+        ---------------------------
+        Trace back to fact C
+        Value: FALSE
+        ---------------------------
+        Trace back to fact D
+        Value: FALSE
+        ---------------------------
+
+    Reasoning    : FALSE + FALSE == FALSE
+    Rule 2 value : FALSE
+
+    Trace back to parent
+
+        ---------------------------
+        Trace back to rule 3
+        Desc   : rule 1 => rule 2
+        Parent : none
+
+            ---------------------------
+            Trace back to rule 1
+
+            Desc   : A + B
+            Parent : rule 3
+
+                ---------------------------
+                Trace back to A
+                Value: TRUE
+                ---------------------------
+                Trace back to B
+                Value: TRUE
+                ---------------------------
+
+            Reasoning    : TRUE + TRUE == TRUE
+            Rule 1 value : TRUE
+            ---------------------------
+            Trace back to rule2
+            Rule 2 value: FALSE
+            ---------------------------
+
+        Reasoning: TRUE => FALSE
+        Rule 2 has to be TRUE
+
+            ---------------------------
+            Changing rule 2 value to TRUE
+            Desc: C + D
+
+                ---------------------------
+                Changing fact C value to TRUE
+                ---------------------------
+                Changing fact D value to TRUE
+                ---------------------------
+            
+            Finished changing rule 2 values
+            ---------------------------
+
+        Rule 3 Value : TRUE 
+        ---------------------------
+
+    Rule 2 Value : TRUE
+    ---------------------------
+
+Fact C value : TRUE
+
+
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+        
