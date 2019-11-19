@@ -172,22 +172,17 @@ void rule::to_true(rule_node node, int i)
 	{
 		[this, i](std::shared_ptr<fact> f)
 		{
-			pv_totrue_fact(i, f);
 			f->value = fact_value::TRUE;
+			pv_totrue_fact(i, f);
+			pv_getfactvalue_evaluate_begin(i, f->rules);
 
 			for (auto & r : f->rules)
 			{
-				std::cout << r->get_name(f) << " to_true " << r->get_name(r) << " " << r->value << "\n";
-
-				if (r->operation == rule_operation::IMPLY
-					&& std::holds_alternative<std::shared_ptr<fact>>(r->left)
-					&& std::get<std::shared_ptr<fact>>(r->left) == f)
-				{
-					to_true(r->right, i + 1);
-				}
-
 				r->to_true_parent(i + 1);
 			}
+
+			std::cout << indent(i + 1) << hr << "\n\n";
+			std::cout << indent(i) << "Finished tracing rule " << name << '\n';
 		},
 		[this, i](std::shared_ptr<rule> r)
 		{
@@ -203,13 +198,29 @@ void rule::to_true(rule_node node, int i)
 
 void rule::to_true_parent(int i)
 {
+	std::cout << indent(i) << hr << "\n";
+	std::cout << indent(i) << "Trace back to rule " << name << "\n";
+	if (operation == rule_operation::NOT)
+		std::cout << indent(i) << "Desc   : !" << get_name(left) << "\n";
+	else
+		std::cout << indent(i) << "Desc   : " << get_name(left) << ' ' << operation << ' ' << get_name(right) << "\n";
+
+	std::string parent_str = (parent != nullptr) ? "rule " + std::to_string(parent->name) : "None";
+	std::cout << indent(i) << "Parent : " << parent_str << "\n";
+	std::cout << indent(i) << "Value: " << value << '\n';
+
 	if (value == fact_value::TRUE && operation != rule_operation::IMPLY)
+	{
+		std::cout << indent(i) << "No change, stop tracing\n";
 		return;
+	}
+
+	std::cout << '\n';
 
 	auto l_value = get_fact_value(left, i + 1);
 	auto r_value = (operation == rule_operation::NOT) ? fact_value::FALSE : get_fact_value(right, i + 1);
 
-	std::cout << l_value << " " << operation << " " << r_value << "\n";
+	pv_evaluate_facts_end(i);
 
 	bool v;
 
@@ -221,7 +232,6 @@ void rule::to_true_parent(int i)
 
 		case rule_operation::AND: 
 			v = (l_value == fact_value::TRUE && r_value == fact_value::TRUE);
-			std::cout << "and: " << v << "\n";
 			break;
 
 		case rule_operation::OR:
@@ -234,16 +244,29 @@ void rule::to_true_parent(int i)
 
 		default:
 			if (l_value == fact_value::TRUE && r_value == fact_value::FALSE)
+			{
+				std::cout << indent(i) << "Reasoning: " << l_value << ' ' << operation << ' ' << r_value << "\n";
+				pv_imply_totrue_begin(i);
 				to_true(right, i + 1);
+			}
+			return;
 	}
 
-	if (!v) return;
+	std::cout << indent(i) << "Reasoning: " << l_value << ' ' << operation << ' ' << r_value << " == " << (v ? fact_value::TRUE : fact_value::FALSE) << '\n';
+
+	if (!v)
+	{
+		std::cout << indent(i) << "No change, stop tracing\n";
+		return;
+	}
+
 	value = fact_value::TRUE;
-	std::cout << "still here\n";
+
+	std::cout << indent(i) << "Changing rule " << name << " to " << fact_value::TRUE << '\n';
 
 	if (parent)
 	{
-		std::cout << "run parent\n";
+		std::cout << indent(i) << "Trace back to parent\n\n";
 		parent->to_true_parent(i + 1);
 	}
 }

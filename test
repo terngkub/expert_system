@@ -1,9 +1,11 @@
 L + M => K
 O => L + N
 N => M
-N + A => B
+# N + A => B
 
-=OA
+=O
+#=OA
 #=
 
-?KB
+#?KB
+?K
