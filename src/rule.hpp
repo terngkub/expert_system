@@ -60,8 +60,8 @@ public:
     rule & operator=(rule &&) = default;
 
     // Public Methods
-    void evaluate(int i);
     std::string get_name(rule_node node);
+    void evaluate(int i);
 
 private:
     // Public Methods
@@ -74,6 +74,7 @@ private:
     void operation_xor(fact_value l_value, fact_value r_value, int i);
     void operation_imply(fact_value l_value, fact_value r_value, int i);
     void to_true(rule_node node, int i);
+    void to_true_parent(int i);
 
     // Visualisation
     void pv_getfactvalue_begin(int i, std::shared_ptr<fact> const & f);

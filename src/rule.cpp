@@ -174,6 +174,20 @@ void rule::to_true(rule_node node, int i)
 		{
 			pv_totrue_fact(i, f);
 			f->value = fact_value::TRUE;
+
+			for (auto & r : f->rules)
+			{
+				std::cout << r->get_name(f) << " to_true " << r->get_name(r) << " " << r->value << "\n";
+
+				if (r->operation == rule_operation::IMPLY
+					&& std::holds_alternative<std::shared_ptr<fact>>(r->left)
+					&& std::get<std::shared_ptr<fact>>(r->left) == f)
+				{
+					to_true(r->right, i + 1);
+				}
+
+				r->to_true_parent(i + 1);
+			}
 		},
 		[this, i](std::shared_ptr<rule> r)
 		{
@@ -185,6 +199,53 @@ void rule::to_true(rule_node node, int i)
 		}
 	},
 	node);
+}
+
+void rule::to_true_parent(int i)
+{
+	if (value == fact_value::TRUE && operation != rule_operation::IMPLY)
+		return;
+
+	auto l_value = get_fact_value(left, i + 1);
+	auto r_value = (operation == rule_operation::NOT) ? fact_value::FALSE : get_fact_value(right, i + 1);
+
+	std::cout << l_value << " " << operation << " " << r_value << "\n";
+
+	bool v;
+
+	switch(operation)
+	{
+		case rule_operation::NOT:
+			v = (l_value == fact_value::FALSE);
+			break; 
+
+		case rule_operation::AND: 
+			v = (l_value == fact_value::TRUE && r_value == fact_value::TRUE);
+			std::cout << "and: " << v << "\n";
+			break;
+
+		case rule_operation::OR:
+			v = (l_value == fact_value::TRUE || r_value == fact_value::TRUE);
+			break;
+
+		case rule_operation::XOR:
+			v = (l_value != r_value);
+			break;
+
+		default:
+			if (l_value == fact_value::TRUE && r_value == fact_value::FALSE)
+				to_true(right, i + 1);
+	}
+
+	if (!v) return;
+	value = fact_value::TRUE;
+	std::cout << "still here\n";
+
+	if (parent)
+	{
+		std::cout << "run parent\n";
+		parent->to_true_parent(i + 1);
+	}
 }
 
 
