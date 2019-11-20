@@ -49,7 +49,8 @@ To run in normal mode
 Shorthand | Full | Mode | Description
 --- | --- | --- | ---
 -h | --help | | show help message 
--i | --interactive | interactive mode | user can change initial facts and query without having to rerun the program
+-f | --facts | interactive facts mode | user can change initial facts without having to rerun the program
+-q | --query | interactive query mode | user can change query without having to rerun the program
 -v | --visualisation | reasoning visualisation mode | display step-by-step backward chaining reasoning process
 -d | --debug | debug mode | display all values after evaluation
 -c | --color | color mode | display with color
