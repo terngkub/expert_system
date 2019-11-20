@@ -98,7 +98,20 @@ private:
     void pv_imply_totrue_begin(int i);
     void pv_imply_totrue_end(int i);
 
-    void pv_totrue_fact(int i, std::shared_ptr<fact> const & fact);
+    void pv_totrue_fact_begin(int i, std::shared_ptr<fact> const & fact);
+    void pv_totrue_fact_end(int i, std::shared_ptr<fact> const & f);
     void pv_totrue_rule_begin(int i);
     void pv_totrue_rule_end(int i);
+
+    void pv_totrueparent_nochange(int i);
+    void pv_totrueparent_facts_begin();
+    void pv_totrueparent_imply_change_begin(int i, fact_value l_value, fact_value r_value);
+    void pv_totrueparent_imply_change_end(int i);
+    void pv_totrueparent_reasoning(int i, fact_value l_value, fact_value r_value, bool v);
+    void pv_totrueparent_change(int i);
+    void pv_totrueparent_parent_begin(int i);
+    void pv_totrueparent_parent_end(int i);
+
+    void pv_totruegetfactvalue_fact(int i, std::shared_ptr<fact> const & f);
+    void pv_totruegetfactvalue_rule(int i, std::shared_ptr<rule> const & r);
 };

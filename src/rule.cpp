@@ -72,7 +72,6 @@ std::string rule::get_name(rule_node node)
 
 // Private Methods
 
-
 fact_value rule::get_fact_value(rule_node node, int i)
 {
 	return std::visit(overloaded
@@ -172,16 +171,14 @@ void rule::to_true(rule_node node, int i)
 		[this, i](std::shared_ptr<fact> f)
 		{
 			f->value = fact_value::TRUE;
-			pv_totrue_fact(i, f);
-			pv_getfactvalue_evaluate_begin(i, f->rules);
+
+			pv_totrue_fact_begin(i, f);
 
 			for (auto & r : f->rules)
-			{
 				r->to_true_parent(i + 1);
-			}
 
-			std::cout << indent(i + 1) << hr << "\n\n";
-			std::cout << indent(i) << "Finished tracing fact " << f->name << '\n';
+			pv_totrue_fact_end(i, f);
+
 		},
 		[this, i](std::shared_ptr<rule> r)
 		{
@@ -195,48 +192,16 @@ void rule::to_true(rule_node node, int i)
 	node);
 }
 
-fact_value rule::to_true_get_fact_value(rule_node const & node, int i)
-{
-	return std::visit(overloaded
-	{
-		[i](std::shared_ptr<fact> f)
-		{
-			std::cout << indent(i) << hr << '\n';
-			std::cout << indent(i) << "Trace back to fact " << f->name << '\n';
-			std::cout << indent(i) << "Value: " << f->value << '\n';
-			return f->value;
-		},
-		[i](std::shared_ptr<rule> r)
-		{
-			std::cout << indent(i) << hr << '\n';
-			std::cout << indent(i) << "Trace back to rule " << r->name << '\n';
-			std::cout << indent(i) << "Value: " << r->value << '\n';
-			return r->value;
-		}
-	},
-	node);
-}
-
 void rule::to_true_parent(int i)
 {
-	std::cout << indent(i) << hr << "\n";
-	std::cout << indent(i) << "Trace back to rule " << name << "\n";
-	if (operation == rule_operation::NOT)
-		std::cout << indent(i) << "Desc   : !" << get_name(left) << "\n";
-	else
-		std::cout << indent(i) << "Desc   : " << get_name(left) << ' ' << operation << ' ' << get_name(right) << "\n";
-
-	std::string parent_str = (parent != nullptr) ? "rule " + std::to_string(parent->name) : "None";
-	std::cout << indent(i) << "Parent : " << parent_str << "\n";
-	std::cout << indent(i) << "Value: " << value << '\n';
+	pv_evaluate_facts_begin(i);
 
 	if (value == fact_value::TRUE)
 	{
-		std::cout << indent(i) << "No change, stop tracing\n";
+		pv_totrueparent_nochange(i);
 		return;
 	}
-
-	std::cout << '\n';
+	pv_totrueparent_facts_begin();
 
 	auto l_value = to_true_get_fact_value(left, i + 1);
 	auto r_value = (operation == rule_operation::NOT) ? fact_value::FALSE : to_true_get_fact_value(right, i + 1);
@@ -267,38 +232,52 @@ void rule::to_true_parent(int i)
 			if (l_value == fact_value::TRUE && r_value == fact_value::FALSE)
 			{
 				value = fact_value::TRUE;
-				std::cout << indent(i) << "Reasoning: " << l_value << ' ' << operation << ' ' << r_value << "\n";
-				pv_imply_totrue_begin(i);
+				pv_totrueparent_imply_change_begin(i, l_value, r_value);
 				to_true(right, i + 1);
-				std::cout << indent(i + 1) << hr << "\n\n";
-				std::cout << indent(i) << "Finished changing rule " << name << "\n";
+				pv_totrueparent_imply_change_end(i);
 			}
 			else
 			{
-				std::cout << indent(i) << "No change, stop tracing\n";
+				pv_totrueparent_nochange(i);
 			}
 			return;
 	}
 
-	std::cout << indent(i) << "Reasoning: " << l_value << ' ' << operation << ' ' << r_value << " == " << (v ? fact_value::TRUE : fact_value::FALSE) << '\n';
+	pv_totrueparent_reasoning(i, l_value, r_value, v);
 
 	if (!v)
 	{
-		std::cout << indent(i) << "No change, stop tracing\n";
+		pv_totrueparent_nochange(i);
 		return;
 	}
 
 	value = fact_value::TRUE;
-
-	std::cout << indent(i) << "Changing rule " << name << " to " << fact_value::TRUE << '\n';
+	pv_totrueparent_change(i);
 
 	if (parent)
 	{
-		std::cout << indent(i) << "Trace back to parent\n\n";
+		pv_totrueparent_parent_begin(i);
 		parent->to_true_parent(i + 1);
-		std::cout << indent(i + 1) << hr << "\n\n";
-		std::cout << indent(i) << "Finished tracing parent\n";
+		pv_totrueparent_parent_end(i);
 	}
+}
+
+fact_value rule::to_true_get_fact_value(rule_node const & node, int i)
+{
+	return std::visit(overloaded
+	{
+		[this, i](std::shared_ptr<fact> f)
+		{
+			pv_totruegetfactvalue_fact(i, f);
+			return f->value;
+		},
+		[this, i](std::shared_ptr<rule> r)
+		{
+			pv_totruegetfactvalue_rule(i, r);
+			return r->value;
+		}
+	},
+	node);
 }
 
 
@@ -427,13 +406,22 @@ void rule::pv_imply_totrue_end(int i)
 		std::cout << indent(i + 1) << hr << "\n\n";
 }
 
-void rule::pv_totrue_fact(int i, std::shared_ptr<fact> const & f)
+void rule::pv_totrue_fact_begin(int i, std::shared_ptr<fact> const & f)
 {
-
 	if (options::vm.count("visualisation"))
 	{
 		std::cout << indent(i) << hr << "\n";
 		std::cout << indent(i) << "Changing fact " << f->name << " to " << fact_value::TRUE << "\n";
+	}
+	pv_getfactvalue_evaluate_begin(i, f->rules);
+}
+
+void rule::pv_totrue_fact_end(int i, std::shared_ptr<fact> const & f)
+{
+	if (options::vm.count("visualisation"))
+	{
+		std::cout << indent(i + 1) << hr << "\n\n";
+		std::cout << indent(i) << "Finished tracing fact " << f->name << '\n';
 	}
 }
 
@@ -454,5 +442,82 @@ void rule::pv_totrue_rule_end(int i)
 	{
 		std::cout << indent(i + 1) << hr << "\n\n";
 		std::cout << indent(i) << "Finished changing rule " << name << "\n";
+	}
+}
+
+void rule::pv_totrueparent_facts_begin()
+{
+	if (options::vm.count("visualisation"))
+		std::cout << '\n';
+}
+
+void rule::pv_totrueparent_imply_change_begin(int i, fact_value l_value, fact_value r_value)
+{
+	if (options::vm.count("visualisation"))
+	{
+		std::cout << indent(i) << "Reasoning: " << l_value << ' ' << operation << ' ' << r_value << "\n";
+		pv_imply_totrue_begin(i);
+	}
+}
+
+void rule::pv_totrueparent_imply_change_end(int i)
+{
+	if (options::vm.count("visualisation"))
+	{
+		std::cout << indent(i + 1) << hr << "\n\n";
+		std::cout << indent(i) << "Finished changing rule " << name << "\n";
+	}
+}
+
+void rule::pv_totrueparent_reasoning(int i, fact_value l_value, fact_value r_value, bool v)
+{
+	if (options::vm.count("visualisation"))
+		std::cout << indent(i) << "Reasoning: " << l_value << ' ' << operation << ' ' << r_value << " == " << (v ? fact_value::TRUE : fact_value::FALSE) << '\n';
+}
+
+void rule::pv_totrueparent_nochange(int i)
+{
+	if (options::vm.count("visualisation"))
+		std::cout << indent(i) << "No change, stop tracing\n";
+}
+
+void rule::pv_totrueparent_change(int i)
+{
+	if (options::vm.count("visualisation"))
+		std::cout << indent(i) << "Changing rule " << name << " to " << fact_value::TRUE << '\n';
+}
+
+void rule::pv_totrueparent_parent_begin(int i)
+{
+	if (options::vm.count("visualisation"))
+		std::cout << indent(i) << "Trace back to parent\n\n";
+}
+
+void rule::pv_totrueparent_parent_end(int i)
+{
+	if (options::vm.count("visualisation"))
+	{
+		std::cout << indent(i + 1) << hr << "\n\n";
+		std::cout << indent(i) << "Finished tracing parent\n";
+	}
+}
+
+void rule::pv_totruegetfactvalue_fact(int i, std::shared_ptr<fact> const & f)
+{
+	if (options::vm.count("visualisation"))
+	{
+		std::cout << indent(i) << hr << '\n';
+		std::cout << indent(i) << "Trace back to fact " << f->name << '\n';
+		std::cout << indent(i) << "Value: " << f->value << '\n';
+	}
+}
+
+void rule::pv_totruegetfactvalue_rule(int i, std::shared_ptr<rule> const & r)
+{
+	if (options::vm.count("visualisation"))
+	{
+		std::cout << indent(i) << hr << '\n';
+		std::cout << indent(i) << "Trace back to rule " << r->name << '\n';
+		std::cout << indent(i) << "Value: " << r->value << '\n';
 	}
 }
