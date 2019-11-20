@@ -3,7 +3,7 @@
 #include "rule.hpp"
 #include <fstream>
 
-struct expert_system;
+class expert_system;
 
 class parser
 {

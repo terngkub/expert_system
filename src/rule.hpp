@@ -19,7 +19,7 @@ std::ostream & operator<<(std::ostream & os, rule_operation const & rhs);
 
 
 // Rule Node
-struct rule;
+class rule;
 using rule_node = std::variant<std::shared_ptr<fact>, std::shared_ptr<rule>>;
 
 

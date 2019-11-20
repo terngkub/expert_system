@@ -11,7 +11,7 @@ enum class fact_value
 
 std::ostream & operator<<(std::ostream & os, fact_value const & rhs);
 
-struct rule;
+class rule;
 
 struct fact
 {

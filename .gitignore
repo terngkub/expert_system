@@ -1,6 +1,8 @@
-build
-bin
+.vscode
 .DS_Store
 *.swp
-.vscode
 *.bak
+build
+bin
+obj
+expert_system
