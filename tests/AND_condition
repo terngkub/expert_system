@@ -1,9 +1,0 @@
-A => B
-B + A => C
-C + A => D
-
-#=A # Everything is true
-=B # Everything is False except B
-
-
-?ABCD
