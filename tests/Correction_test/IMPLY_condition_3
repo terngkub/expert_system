@@ -1,0 +1,8 @@
+
+B => A
+C => A
+
+=
+# A should be true
+
+?A
