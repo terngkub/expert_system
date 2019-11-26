@@ -1,14 +1,20 @@
 #!/bin/sh
 execute_ES()
 {
-    for file in $1
+    if [ -d $1 ]
+    then
+        to_execute="$1/**"
+    else
+        to_execute=$1
+    fi
+
+    for file in $to_execute
     do
         echo ""
         echo "=========================================="
         echo "$file"
         echo ""
-        echo $file
-        
+        ./expert_system $file $2
         echo ""
         echo "------------------------------------------"
         echo ""
@@ -18,20 +24,18 @@ execute_ES()
 
 if [ -z "$1"]
 then
-    echo "/!\\ doing Simple test first /!\\"
-    folder="tests/Simple_test/**"
-    execute_ES $folder $2
-    echo "/!\\ Next, Parser Test, press Enter /!\\"
-    read tmp
-    folder="tests/parser_test"
-    execute_ES $folder $2
-    echo "/!\\ Next, Correction Test, press Enter /!\\"
-    read tmp
-    folder="tests/Correction_test"
-    execute_ES $folder $2
-fi
-if [ ! -z "$1" ]
-then
-    folder=$1
-    execute_ES $folder $2
+    echo "/!\\ doing Simple test first /!\\";
+    folder="tests/Simple_test";
+    execute_ES $folder $2;
+    echo "/!\\ Next, Parser Test, press Enter /!\\";
+    read tmp;
+    folder="tests/parser_test";
+    execute_ES $folder $2;
+    echo "/!\\ Next, Correction Test, press Enter /!\\";
+    read tmp;
+    folder="tests/Correction_test";
+    execute_ES $folder $2;
+else
+    folder=$1;
+    execute_ES $folder $2;
 fi
