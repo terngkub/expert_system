@@ -13,8 +13,9 @@ execute_ES()
     for file in $to_execute
     do
         echo ""
-        echo "======================================================"
-        echo "\033[0;31m $file"
+        echo "\033[38;5;186m ======================================================"
+        echo "\033[0m"
+        echo "\033[0;32m $file"
         echo "\033[0m"
         cat $file
         echo ""
@@ -24,7 +25,8 @@ execute_ES()
         ./expert_system $file $2
         echo ""
         echo ""
-        echo ""
+        echo "\033[38;5;209m ======================================================"
+        echo "\033[0m"
     done
 }
 
