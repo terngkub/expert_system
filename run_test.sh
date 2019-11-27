@@ -16,6 +16,10 @@ execute_ES()
         echo "======================================================"
         echo "\033[0;31m $file"
         echo "\033[0m"
+        cat $file
+        echo ""
+        echo "Press Enter to execute file"
+        read rdm_var
         echo ""
         ./expert_system $file $2
         echo ""
