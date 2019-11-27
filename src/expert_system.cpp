@@ -13,6 +13,7 @@ expert_system::expert_system(std::string & filename)
 	, rules{}
 	, queries{}
 	, parser_{*this, filename}
+	, filename{filename}
 {}
 
 
@@ -20,6 +21,8 @@ expert_system::expert_system(std::string & filename)
 
 void expert_system::operator()()
 {
+	if (options::vm.count("print"))
+		print_file();
 	parser_.parse();
 	if (options::vm.count("facts") || options::vm.count("query"))
 		interactive_loop();
@@ -36,9 +39,9 @@ void expert_system::run()
 		query(facts[c]);
 
 	if (options::vm.count("debug"))
-		debug_print();
+		debug_print_result();
 	else
-		print();
+		print_result();
 }
 
 
@@ -68,7 +71,28 @@ void expert_system::query(std::shared_ptr<fact> f)
 	}
 }
 
-void expert_system::print()
+// Print
+
+void expert_system::print_file()
+{
+	std::cout << "File content:\n\n";
+
+	std::ifstream ifs;
+
+	ifs.open(filename);
+	if (ifs.fail())
+		throw std::runtime_error("fail to open " + filename);
+
+	std::string line;
+	while (getline(ifs, line))
+		std::cout << line << '\n';
+
+	ifs.close();
+
+	std::cout << "-------------------------------\n\n";
+}
+
+void expert_system::print_result()
 {
 	for (auto c : queries)
 	{
@@ -76,10 +100,7 @@ void expert_system::print()
 	}
 }
 
-
-// Debug
-
-void expert_system::debug_print()
+void expert_system::debug_print_result()
 {
 	std::cout << "Facts:\n";
 
