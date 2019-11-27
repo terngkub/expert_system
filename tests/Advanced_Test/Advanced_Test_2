@@ -5,3 +5,5 @@ E ^ F => C
 =E
 
 ?ABCDEF
+
+# Testing execution order and OR rules

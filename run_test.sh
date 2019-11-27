@@ -3,19 +3,21 @@
 
 execute_ES()
 {
+
     if [ -d $1 ]
     then
         to_execute="$1/**"
     else
         to_execute=$1
     fi
+    to_execute_size=$(echo $to_execute | wc -w)
 
     for file in $to_execute
     do
         echo ""
-        echo "\033[38;5;186m ======================================================"
+        echo "\033[38;5;186m======================================================"
         echo "\033[0m"
-        echo "\033[0;32m $file"
+        echo "\033[0;32m$file"
         echo "\033[0m"
         cat $file
         echo ""
@@ -25,8 +27,10 @@ execute_ES()
         ./expert_system $file $2
         echo ""
         echo ""
-        echo "\033[38;5;209m ======================================================"
+        echo "\033[38;5;209m======================================================"
         echo "\033[0m"
+        echo ""
+        echo ""
     done
 }
 
