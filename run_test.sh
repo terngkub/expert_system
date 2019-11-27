@@ -1,4 +1,6 @@
 #!/bin/sh
+
+
 execute_ES()
 {
     if [ -d $1 ]
@@ -11,18 +13,19 @@ execute_ES()
     for file in $to_execute
     do
         echo ""
-        echo "=========================================="
-        echo "$file"
+        echo "======================================================"
+        echo "\033[0;31m $file"
+        echo "\033[0m"
         echo ""
         ./expert_system $file $2
         echo ""
-        echo "------------------------------------------"
+        echo ""
         echo ""
     done
 }
 
 
-if [ -z "$1"]
+if [ -z $1 ]
 then
     echo "/!\\ doing Simple test first /!\\";
     folder="tests/Simple_test";

@@ -1,0 +1,10 @@
+!(A ^ B) => C
+D => C
+
+C => B
+B => E
+
+E + F => A
+
+=
+?ABCDEF
