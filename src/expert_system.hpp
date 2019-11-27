@@ -35,14 +35,16 @@ public:
 private:
     // Private Attributes
     parser parser_;
+    std::string filename;
 
     // Internal
     void run();
     void query(std::shared_ptr<fact> f);
-    void print();
-    
-    // Debug
-    void debug_print();
+
+    // Print
+    void print_file();
+    void print_result();
+    void debug_print_result();
 
     // Interactive
     void interactive_loop();

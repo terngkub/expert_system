@@ -16,6 +16,7 @@ void options::get_options(int argc, char ** argv)
         ("visualisation,v", "reasoning visualisation mode, display step-by-step backward chaining reasoning process")
         ("debug,d", "debug mode, display all values after evaluation")
         ("color,c", "color mode, display with color")
+        ("print,p", "print input file")
     ;
     hidden.add_options()
         ("filename", boost::program_options::value<std::string>(), "input file path")

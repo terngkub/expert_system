@@ -54,6 +54,7 @@ Shorthand | Full | Mode | Description
 -v | --visualisation | reasoning visualisation mode | display step-by-step backward chaining reasoning process
 -d | --debug | debug mode | display all values after evaluation
 -c | --color | color mode | display with color
+-p | --print | print mode | print input file
 
 
 ## Input
