@@ -27,10 +27,6 @@ execute_ES()
         ./expert_system $file $2
         echo ""
         echo ""
-        echo "\033[38;5;209m======================================================"
-        echo "\033[0m"
-        echo ""
-        echo ""
     done
 }
 
@@ -40,14 +36,20 @@ then
     echo "/!\\ doing Simple test first /!\\";
     folder="tests/Simple_test";
     execute_ES $folder $2;
+    echo "\033[38;5;209m======================================================"
+    echo "\033[0m"
     echo "/!\\ Next, Parser Test, press Enter /!\\";
     read tmp;
     folder="tests/parser_test";
     execute_ES $folder $2;
+    echo "\033[38;5;209m======================================================"
+    echo "\033[0m"
     echo "/!\\ Next, Correction Test, press Enter /!\\";
     read tmp;
     folder="tests/Correction_test";
     execute_ES $folder $2;
+    echo "\033[38;5;209m======================================================"
+    echo "\033[0m"
 else
     folder=$1;
     execute_ES $folder $2;
