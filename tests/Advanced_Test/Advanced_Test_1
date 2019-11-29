@@ -6,3 +6,16 @@ E => F
 ?ABCDEFG
 
 # Testing good implementation of parentheses with complexe execution order 
+#   
+#
+#
+#          =>
+#       /     \
+#      /       \
+#     +          +
+#    / \     /     \
+#   +   C   +        +
+#  / \     / \     /   \
+# A  !B   D   E   F     G
+#              \ /
+#               =>
