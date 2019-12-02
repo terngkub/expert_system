@@ -1,0 +1,6 @@
+B + !C => A
+
+=BC
+# A should be false
+
+?A

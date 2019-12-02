@@ -1,8 +1,6 @@
-B => A
-C => A
+B + !C => A
 
-=C
+=B
 # A should be true
-
 
 ?A

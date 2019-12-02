@@ -15,18 +15,17 @@ execute_ES()
     for file in $to_execute
     do
         echo ""
-        echo "\033[38;5;186m======================================================"
-        echo "\033[0m"
         echo "\033[0;32m$file"
         echo "\033[0m"
         cat $file
         echo ""
-        echo "Press Enter to execute file"
-        read rdm_var
-        echo ""
         ./expert_system $file $2
         echo ""
+        echo "Press Enter to run the next test"
+        read rdm_var
         echo ""
+        echo "\033[38;5;186m======================================================"
+        echo "\033[0m"
     done
 }
 

@@ -1,8 +1,0 @@
-B => A
-C => A
-
-
-=BC
-# A should be true
-
-?A

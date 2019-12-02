@@ -2,8 +2,7 @@ B + C => A
 D | E => B
 B => C
 
-=E
+=D 
 # A should be true
-
 
 ?A
